@@ -84,6 +84,11 @@ int main(){
 		if(tb[i].avail==true) active_bullets++;
 	}
 	Draw();
+
+	if(key[KEY_INPUT_ESCAPE]==1){
+		GetDrawScreenGraph(0,0,640,480,ScreenShot,false);
+		if(PauseGame()==-1) return -1;
+	}
 }
 //---------------------------------------------
 

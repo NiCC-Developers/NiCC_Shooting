@@ -178,6 +178,75 @@ int ConfigScreen(){
 	return decision; //選択した番号を返す
 }
 
+int PauseGame(){
+
+	char key[256];
+	int sel=0; //現在選択している項目
+	int decision=-2; //決定した項目
+	bool past_push=false; //ボタン押しっぱなし回避
+	int ELEM_NUM=3; //メニュー要素数
+	int STR_LINE=400; //メニューX座標
+	const int PAUSE_RESUME=0;
+	const int PAUSE_CONFIG=1;
+	const int PAUSE_EXIT=2;
+
+	//メニュー内容
+	static menuelm menu[]={ 
+		{"再開",Cwhite,STR_LINE,200,},
+		{"オプション",Cwhite,STR_LINE,250,},
+		{"ゲームの終了",Cwhite,STR_LINE,300,},
+	};
+
+	while(ProcessMessage()==0 && decision==-2){
+		ClearDrawScreen();
+		DrawGraph(0,0,ScreenShot,false);
+		GetHitKeyStateAll(key);
+		if(past_push==false){ //メニュー移動
+			if(key[KEY_INPUT_UP]==1) sel-=1;
+			if(key[KEY_INPUT_DOWN]==1) sel+=1;
+			if(key[KEY_INPUT_Z]==1){
+				past_push=true;
+				decision=sel;
+			}
+			//ループ処理
+			if(sel < 0) sel=ELEM_NUM-1;
+			if(sel > ELEM_NUM-1) sel=0;
+		}
+			if(CheckHitKeyAll()==0) past_push=false; else past_push=true; //ボタン押しっぱなし回避
+			
+			//メニュー描画
+			for(int i=0; i<ELEM_NUM; i++){
+				if(i==sel) {
+					DrawFormatString(menu[i].x-20,menu[i].y,Cred,menu[i].name);
+					menu[i].x-=5;
+					if(STR_LINE-menu[i].x > 20) menu[i].x=STR_LINE-20;
+				}
+				else {
+					DrawFormatString(menu[i].x,menu[i].y,menu[i].color,menu[i].name);
+					menu[i].x+=5;
+					if(STR_LINE <= menu[i].x) menu[i].x=STR_LINE;
+				}
+			}
+			
+			ScreenFlip();
+	}
+
+	switch (decision){
+	case PAUSE_RESUME:
+		return 0;
+		break;
+	case PAUSE_CONFIG:
+		ConfigScreen();
+		PauseGame();
+		break;
+	case PAUSE_EXIT:
+		return -1;
+		break;
+	default:
+		break;
+	}
+}
+
 void ShowNobel(){
 	switch(stage){
 	case 1:

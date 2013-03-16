@@ -74,7 +74,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 	//メインループ
 	start:
 
-	while(ProcessMessage()==0 && CheckHitKey(KEY_INPUT_ESCAPE)==0){
+	while(ProcessMessage()==0/* && CheckHitKey(KEY_INPUT_ESCAPE)==0*/){
 
 		fps=GetFPS();
 		GetHitKeyStateAll(key);
@@ -82,6 +82,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 
 		//main関数を呼び出し、返り値が0以外なら何か実行
 		switch(main()){
+		case -1:
+			goto end;
 		case 1:
 			DrawGraph(300,10,graph::chara[2],true);
 			DrawFormatString(320,200,GetColor(255,255,255),"死んだ");
