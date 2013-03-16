@@ -7,3 +7,5 @@
 }
 
 extern void LoadGraphics();
+extern void LoadConfigData();
+extern void SaveConfigData();

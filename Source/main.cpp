@@ -12,6 +12,7 @@ sysmain.cppのWinMain関数から呼び出されます。
 int active_bullets;
 bool talkphase=true;
 
+
 typedef struct{
 	life_t life;
 	bool isDamage;
@@ -46,6 +47,8 @@ bool isTekiHit();
 void Draw();
 void JikiDamage(int DamageValue);
 
+c_timer Timer;
+
 //メインループ---------------------------------
 int main(){
 
@@ -63,7 +66,7 @@ int main(){
 		JikiDamage(1);
 		jiki.damage=true;
 		shield.isDamage=true;
-		InitTimer();
+		Timer.init(MD_TIMER_SHIELD);
 	}else{
 		jiki.damage=false;
 		shield.isDamage=false;
@@ -106,11 +109,11 @@ void Draw(){
 
 	static bool isChargeTime=false;
 	if(isChargeTime==false){
-		InitTimer();
+		Timer.init(MD_TIMER_SHIELD);
 		isChargeTime=true;
 	}
 	
-	if(isTimePassed(5)==true){
+	if(Timer.hasPassed(MD_TIMER_SHIELD,5)==true){
 		if(shield.life.now!=shield.life.max) shield.life.now+=1;
 		isChargeTime=false;
 	}

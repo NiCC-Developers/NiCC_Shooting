@@ -59,3 +59,20 @@ typedef struct{
 	bool damage;
 }teki_t;
 
+//タイマー　メソッドはsysmain.cpp
+#define MD_TIMER_SHIELD 0
+class c_timer{
+private:
+	int starttime[20];
+public:
+	void init(int TimerNum);
+	bool hasPassed(int TimerNum, unsigned int Sec);
+};
+
+typedef struct{
+	int bgmvol;
+	int sevol;
+	bool isFullscreen;
+}Save_t;
+
+extern Save_t ConfigData;

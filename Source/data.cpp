@@ -10,6 +10,8 @@ namespace graph{
 }
 using namespace graph;
 
+
+//画像関係ロード
 void LoadGraphics(){
 	//gui
 	textbox=LoadGraph("res\\gui\\wakuwaku.png");
@@ -29,4 +31,26 @@ void LoadGraphics(){
 	chara[1]=LoadGraph("res\\chara\\renkon2.png");
 	chara[2]=LoadGraph("res\\chara\\renkon_fail.png");
 
+}
+
+//セーブデータ
+void LoadConfigData(){
+	FILE *fp;
+
+	if((fp = fopen("setting.cfg","rb")) == NULL) {
+		fp = fopen("setting.cfg","wb");
+		fwrite(&ConfigData, sizeof(ConfigData), 1, fp);
+		fclose(fp);
+	} else {
+		fread(&ConfigData, sizeof(ConfigData), 1, fp);
+		fclose(fp);
+	}
+
+}
+
+void SaveConfigData(){
+	FILE *fp;
+	fp=fopen("setting.cfg","wb");
+	fwrite(&ConfigData, sizeof(ConfigData), 1, fp);
+	fclose(fp);
 }
