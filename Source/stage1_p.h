@@ -13,6 +13,7 @@ namespace chara{
 	extern bullet_t tb[200]; /*敵弾*/
 	extern bullet_t tmb[200]; /*弾移動*/
 	extern bullet_t jb[200]; /*自機弾*/
+	extern bullet_t my_bullet[4][200];
 	extern bullet_t jmb[200];
 	extern jiki_t jiki;
 	extern teki_t boss[20];

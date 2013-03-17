@@ -23,6 +23,7 @@ namespace chara{
 	bullet_t tb[200]; //敵弾
 	bullet_t tmb[200]; //弾移動
 	bullet_t jb[200]; //自機弾
+	bullet_t my_bullet[10][200];
 	bullet_t jmb[200]; //使ってない
 	jiki_t jiki={320,400,4,5,5,0,false,false};
 	teki_t boss[20]={
@@ -201,17 +202,20 @@ void Draw(){
 
 	}
 
-	//弾
 	for(int i=0;i<200;i++){
 		if(tb[i].avail==true){
 			DrawCircle(tb[i].x,tb[i].y,3,Cgreen,true);
 		}
 	}
-	for(int i=0;i<200;i++){
-		if(jb[i].avail==true){
-			DrawBox(jb[i].x-3,jb[i].y-3,jb[i].x+3,jb[i].y+3,GetColor(255,255,255),true);
+
+	for(int weap=0; weap<=9; weap++){
+		for(int i=0;i<200;i++){
+			if(my_bullet[weap][i].avail==true){
+				DrawBox(my_bullet[weap][i].x-3,my_bullet[weap][i].y-3,my_bullet[weap][i].x+3,my_bullet[weap][i].y+3,GetColor(255,255,255),true);
+			}
 		}
 	}
+
 
 	//GUI
 	DrawBox(framesize.right,0,640,480,GetColor(255,255,255),true);
@@ -291,27 +295,91 @@ void TBulletMove(){
 void JBulletMove(){
 	//自機弾発射関数
 	static int max=0;
+	static int bullet_num[10];
+	const int WEAP_A=0;
+	const int WEAP_B=1;
+	const int WEAP_C=2;
+	const int WEAP_D=3;
 
-	if(key[KEY_INPUT_Z]==1 && frame%2==1){
-		if(max >=199) max=0;
-		max+=1;
-	}else if(key[KEY_INPUT_Z]==0){
-		max=0;
+	//弾召喚
+	switch (jiki.weap){
+	case MD_WEAP_A:
+		if(key[KEY_INPUT_Z]==1 && frame%2==1){
+			if(bullet_num[MD_WEAP_A]>=199) bullet_num[MD_WEAP_A]=0;
+			bullet_num[MD_WEAP_A]++;
+			if(my_bullet[MD_WEAP_A][bullet_num[MD_WEAP_A]].avail==false){
+				my_bullet[MD_WEAP_A][bullet_num[MD_WEAP_A]].avail=true;
+				my_bullet[MD_WEAP_A][bullet_num[MD_WEAP_A]].x=jiki.x;
+				my_bullet[MD_WEAP_A][bullet_num[MD_WEAP_A]].y=jiki.y;
+			}
+		}
+		break;
+	case MD_WEAP_B:
+		if(key[KEY_INPUT_Z]==1 && frame%2==1){
+			if(bullet_num[MD_WEAP_B_WAY1]>=199) bullet_num[MD_WEAP_B_WAY1]=0;
+			bullet_num[MD_WEAP_B_WAY1]++;
+			if(my_bullet[MD_WEAP_B_WAY1][bullet_num[MD_WEAP_B_WAY1]].avail==false){
+				my_bullet[MD_WEAP_B_WAY1][bullet_num[MD_WEAP_B_WAY1]].avail=true;
+				my_bullet[MD_WEAP_B_WAY1][bullet_num[MD_WEAP_B_WAY1]].x=jiki.x;
+				my_bullet[MD_WEAP_B_WAY1][bullet_num[MD_WEAP_B_WAY1]].y=jiki.y;
+			}
+
+			if(bullet_num[MD_WEAP_B_WAY2]>=199) bullet_num[MD_WEAP_B_WAY2]=0;
+			bullet_num[MD_WEAP_B_WAY2]++;
+			if(my_bullet[MD_WEAP_B_WAY2][bullet_num[MD_WEAP_B_WAY2]].avail==false){
+				my_bullet[MD_WEAP_B_WAY2][bullet_num[MD_WEAP_B_WAY2]].avail=true;
+				my_bullet[MD_WEAP_B_WAY2][bullet_num[MD_WEAP_B_WAY2]].x=jiki.x;
+				my_bullet[MD_WEAP_B_WAY2][bullet_num[MD_WEAP_B_WAY2]].y=jiki.y;
+			}
+
+			if(bullet_num[MD_WEAP_B_WAY3]>=199) bullet_num[MD_WEAP_B_WAY3]=0;
+			bullet_num[MD_WEAP_B_WAY3]++;
+			if(my_bullet[MD_WEAP_B_WAY3][bullet_num[MD_WEAP_B_WAY3]].avail==false){
+				my_bullet[MD_WEAP_B_WAY3][bullet_num[MD_WEAP_B_WAY3]].avail=true;
+				my_bullet[MD_WEAP_B_WAY3][bullet_num[MD_WEAP_B_WAY3]].x=jiki.x;
+				my_bullet[MD_WEAP_B_WAY3][bullet_num[MD_WEAP_B_WAY3]].y=jiki.y;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+	DrawFormatString(0,20,Cwhite,"%d",bullet_num[MD_WEAP_A]);
+	DrawFormatString(0,40,Cwhite,"%d",my_bullet[MD_WEAP_A][bullet_num[MD_WEAP_A]].avail);
+
+	//弾移動
+	//WEAP_A
+	for(int i=0; i<200; i++){
+		if(my_bullet[MD_WEAP_A][i].avail==true) my_bullet[MD_WEAP_A][i].y-=15;
+		if(my_bullet[MD_WEAP_A][i].x > framesize.right+6 || my_bullet[MD_WEAP_A][i].x < framesize.left-6 || my_bullet[MD_WEAP_A][i].y < framesize.top-6 || my_bullet[MD_WEAP_A][i].y > framesize.bottom+6){
+			my_bullet[MD_WEAP_A][i].avail=false;
+		}
 	}
 
-
-	if(key[KEY_INPUT_Z]==1 && jb[max].avail==false){
-		jb[max].x=jiki.x;
-		jb[max].y=jiki.y;
-		jb[max].avail=true;
+	//WEAP_B
+	for(int i=0; i<200; i++){
+		if(my_bullet[MD_WEAP_B_WAY1][i].avail==true) my_bullet[MD_WEAP_B_WAY1][i].y-=15;
+		if(my_bullet[MD_WEAP_B_WAY1][i].x > framesize.right+6 || my_bullet[MD_WEAP_B_WAY1][i].x < framesize.left-6 || my_bullet[MD_WEAP_B_WAY1][i].y < framesize.top-6 || my_bullet[MD_WEAP_B_WAY1][i].y > framesize.bottom+6){
+			my_bullet[MD_WEAP_B_WAY1][i].avail=false;
+		}
+	}
+	for(int i=0; i<200; i++){
+		if(my_bullet[MD_WEAP_B_WAY2][i].avail==true){
+			my_bullet[MD_WEAP_B_WAY2][i].x+=15*cos(PI/180*70);
+			my_bullet[MD_WEAP_B_WAY2][i].y-=15*sin(PI/180*70);
+		}
+		if(my_bullet[MD_WEAP_B_WAY2][i].x > framesize.right+6 || my_bullet[MD_WEAP_B_WAY2][i].x < framesize.left-6 || my_bullet[MD_WEAP_B_WAY2][i].y < framesize.top-6 || my_bullet[MD_WEAP_B_WAY2][i].y > framesize.bottom+6){
+			my_bullet[MD_WEAP_B_WAY2][i].avail=false;
+		}
 	}
 
-
-	for(int i=0;i<200;i++){
-		if(jb[i].x > framesize.right+6 || jb[i].x < framesize.left-6 || jb[i].y < framesize.top-6 || jb[i].y > framesize.bottom+6){
-			jb[i].avail=false;
-		}else{
-			jb[i].y-=15;
+	for(int i=0; i<200; i++){
+		if(my_bullet[MD_WEAP_B_WAY3][i].avail==true){
+			my_bullet[MD_WEAP_B_WAY3][i].x+=15*cos(PI/180*110);
+			my_bullet[MD_WEAP_B_WAY3][i].y-=15*sin(PI/180*110);
+		}
+		if(my_bullet[MD_WEAP_B_WAY3][i].x > framesize.right+6 || my_bullet[MD_WEAP_B_WAY3][i].x < framesize.left-6 || my_bullet[MD_WEAP_B_WAY3][i].y < framesize.top-6 || my_bullet[MD_WEAP_B_WAY3][i].y > framesize.bottom+6){
+			my_bullet[MD_WEAP_B_WAY3][i].avail=false;
 		}
 	}
 

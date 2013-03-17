@@ -19,7 +19,16 @@ common.h
 
 #include "stage1.h"
 
+//#DEFINE
+
 #define PI 3.141592
+#define MD_WEAP_A 0
+#define MD_WEAP_B 1
+#define MD_WEAP_B_WAY1 2
+#define MD_WEAP_B_WAY2 3
+#define MD_WEAP_B_WAY3 4
+#define MD_WEAP_C 5
+#define MD_WEAP_D 6
 
 //弾クラス
 typedef struct{

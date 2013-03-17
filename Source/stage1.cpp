@@ -35,9 +35,11 @@ void TekiDraw_1(int x,int y,bool flag){
 bool TekiHit_1(){
 	static bool result;
 	result=false;
-	for(int i=0;i<=199;i++){
-		if(boss[0].x-30<jb[i].x && jb[i].x<boss[0].x+30 && boss[0].y-10<jb[i].y && jb[i].y<boss[0].y+10){
-			result=true;
+		for(int weap=0; weap<=9; weap++){
+			for(int i=0;i<=199;i++){
+				if(boss[0].x-30<my_bullet[weap][i].x && my_bullet[weap][i].x<boss[0].x+30 && boss[0].y-10<my_bullet[weap][i].y && my_bullet[weap][i].y<boss[0].y+10){
+				result=true;
+			}
 		}
 	}
 	return result;
@@ -79,6 +81,6 @@ void TekiBullet_1(){
 void ShowNobel_1(){
 	SetDrawChara(1,1);
 	
-	WriteNobelString("俺の名は阪上 蓮紺！");
-	WriteNobelString("因みにレンコンはあんまり好きじゃないぜ！");
+	WriteNobelString("ゆけ！戦艦穂高丸！");
+	WriteNobelString("手当たり次第にその辺の敵を叩き潰すのだ！");
 }
