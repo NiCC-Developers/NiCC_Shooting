@@ -6,6 +6,8 @@ namespace graph{
 	int hdmaru[10];
 	int compterve;
 	int textbox;
+	int pause_back;
+	int config_back;
 	int back[10];
 }
 using namespace graph;
@@ -15,7 +17,9 @@ using namespace graph;
 void LoadGraphics(){
 	//gui
 	textbox=LoadGraph("res\\gui\\wakuwaku.png");
-	
+	pause_back=LoadGraph("res\\gui\\pause.png");
+	config_back=LoadGraph("res\\gui\\config_back.png");
+
 	//background
 	back[0]=LoadGraph("res\\background\\background.png");
 

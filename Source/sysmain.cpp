@@ -31,9 +31,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 	LoadConfigData();//設定の読み込み
 	if(ConfigData.isFullscreen == true) ChangeWindowMode(false); else ChangeWindowMode(true);
 	srand((unsigned)time(NULL)); //乱数のシード値をランダムに指定
-	if(DxLib_Init()==-1) return -1; //DXLib初期化
+	if(DxLib_Init()==-1) return -1; //---------------------------DXLib初期化-----------------------------
 	SetDrawScreen(DX_SCREEN_BACK); //裏描画設定
 	ScreenShot=MakeGraph(640,480);
+	ChangeFontType(DX_FONTTYPE_ANTIALIASING_4X4);
 	SetColor(); //色定義
 	SetFont(); //フォント定義
 

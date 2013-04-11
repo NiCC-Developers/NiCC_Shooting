@@ -3,6 +3,8 @@
 	extern int hdmaru[10];
 	extern int compterve;
 	extern int textbox;
+	extern int pause_back;
+	extern int config_back;
 	extern int back[10];
 }
 

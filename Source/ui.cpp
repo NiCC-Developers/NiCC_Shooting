@@ -104,8 +104,9 @@ int ConfigScreen(){
 	while(ProcessMessage()==0 && decision==-2){
 		ClearDrawScreen();
 		DrawGraph(0,0,ScreenShot,false);
-		DrawBox(100,100,540,380,Cblack,true);
-		DrawBox(100,100,540,380,Cgreen,false);
+		DrawGraph(100,100,graph::config_back,true);
+		//DrawBox(100,100,540,380,Cblack,true);
+		//DrawBox(100,100,540,380,Cgreen,false);
 		GetHitKeyStateAll(key);
 
 		//----メニュー内移動----
@@ -183,12 +184,13 @@ int PauseGame(){
 	char key[256];
 	int sel=0; //現在選択している項目
 	int decision=-2; //決定した項目
-	bool past_push=false; //ボタン押しっぱなし回避
+	bool past_push=true; //ボタン押しっぱなし回避
 	int ELEM_NUM=3; //メニュー要素数
 	int STR_LINE=400; //メニューX座標
 	const int PAUSE_RESUME=0;
 	const int PAUSE_CONFIG=1;
 	const int PAUSE_EXIT=2;
+	int back_x=640;
 
 	//メニュー内容
 	static menuelm menu[]={ 
@@ -196,14 +198,20 @@ int PauseGame(){
 		{"オプション",Cwhite,STR_LINE,250,},
 		{"ゲームの終了",Cwhite,STR_LINE,300,},
 	};
+	
 
 	while(ProcessMessage()==0 && decision==-2){
 		ClearDrawScreen();
 		DrawGraph(0,0,ScreenShot,false);
+
+		DrawGraph(back_x,0,graph::pause_back,true);
+		if(back_x>290) back_x-=40;
+
 		GetHitKeyStateAll(key);
 		if(past_push==false){ //メニュー移動
 			if(key[KEY_INPUT_UP]==1) sel-=1;
 			if(key[KEY_INPUT_DOWN]==1) sel+=1;
+			if(key[KEY_INPUT_ESCAPE]==1) decision=PAUSE_RESUME;
 			if(key[KEY_INPUT_Z]==1){
 				past_push=true;
 				decision=sel;

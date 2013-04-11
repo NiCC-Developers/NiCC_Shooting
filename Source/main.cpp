@@ -52,7 +52,6 @@ c_timer Timer;
 
 //メインループ---------------------------------
 int main(){
-
 	DrawGraph(0,0,graph::back[0],true);
 
 	if(talkphase==true){
@@ -86,10 +85,12 @@ int main(){
 	}
 	Draw();
 
-	if(key[KEY_INPUT_ESCAPE]==1){
+	static bool past_push=true;
+	if(key[KEY_INPUT_ESCAPE]==1 && past_push==false){
 		GetDrawScreenGraph(0,0,640,480,ScreenShot,false);
 		if(PauseGame()==-1) return -1;
 	}
+	if(CheckHitKeyAll()==0) past_push=false; else past_push=true;
 }
 //---------------------------------------------
 
@@ -359,7 +360,7 @@ void JBulletMove(){
 	//WEAP_B
 	for(int i=0; i<200; i++){
 		if(my_bullet[MD_WEAP_B_WAY1][i].avail==true) my_bullet[MD_WEAP_B_WAY1][i].y-=15;
-		if(my_bullet[MD_WEAP_B_WAY1][i].x > framesize.right+6 || my_bullet[MD_WEAP_B_WAY1][i].x < framesize.left-6 || my_bullet[MD_WEAP_B_WAY1][i].y < framesize.top-6 || my_bullet[MD_WEAP_B_WAY1][i].y > framesize.bottom+6){
+		if(my_bullet[MD_WEAP_B_WAY1][i].x > framesize.right+100 || my_bullet[MD_WEAP_B_WAY1][i].x < framesize.left-100 || my_bullet[MD_WEAP_B_WAY1][i].y < framesize.top-100 || my_bullet[MD_WEAP_B_WAY1][i].y > framesize.bottom+100){
 			my_bullet[MD_WEAP_B_WAY1][i].avail=false;
 		}
 	}
@@ -368,7 +369,7 @@ void JBulletMove(){
 			my_bullet[MD_WEAP_B_WAY2][i].x+=15*cos(PI/180*70);
 			my_bullet[MD_WEAP_B_WAY2][i].y-=15*sin(PI/180*70);
 		}
-		if(my_bullet[MD_WEAP_B_WAY2][i].x > framesize.right+6 || my_bullet[MD_WEAP_B_WAY2][i].x < framesize.left-6 || my_bullet[MD_WEAP_B_WAY2][i].y < framesize.top-6 || my_bullet[MD_WEAP_B_WAY2][i].y > framesize.bottom+6){
+		if(my_bullet[MD_WEAP_B_WAY2][i].x > framesize.right+100 || my_bullet[MD_WEAP_B_WAY2][i].x < framesize.left-100 || my_bullet[MD_WEAP_B_WAY2][i].y < framesize.top-100 || my_bullet[MD_WEAP_B_WAY2][i].y > framesize.bottom+100){
 			my_bullet[MD_WEAP_B_WAY2][i].avail=false;
 		}
 	}
@@ -378,7 +379,7 @@ void JBulletMove(){
 			my_bullet[MD_WEAP_B_WAY3][i].x+=15*cos(PI/180*110);
 			my_bullet[MD_WEAP_B_WAY3][i].y-=15*sin(PI/180*110);
 		}
-		if(my_bullet[MD_WEAP_B_WAY3][i].x > framesize.right+6 || my_bullet[MD_WEAP_B_WAY3][i].x < framesize.left-6 || my_bullet[MD_WEAP_B_WAY3][i].y < framesize.top-6 || my_bullet[MD_WEAP_B_WAY3][i].y > framesize.bottom+6){
+		if(my_bullet[MD_WEAP_B_WAY3][i].x > framesize.right+100 || my_bullet[MD_WEAP_B_WAY3][i].x < framesize.left-100 || my_bullet[MD_WEAP_B_WAY3][i].y < framesize.top-100 || my_bullet[MD_WEAP_B_WAY3][i].y > framesize.bottom+100){
 			my_bullet[MD_WEAP_B_WAY3][i].avail=false;
 		}
 	}
