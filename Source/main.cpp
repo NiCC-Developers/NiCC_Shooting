@@ -200,7 +200,6 @@ void Draw(){
 				rotate_flag=0;
 			}
 		}
-
 	}
 
 	for(int i=0;i<200;i++){
@@ -212,10 +211,14 @@ void Draw(){
 	for(int weap=0; weap<=9; weap++){
 		for(int i=0;i<200;i++){
 			if(my_bullet[weap][i].avail==true){
-				DrawBox(my_bullet[weap][i].x-3,my_bullet[weap][i].y-3,my_bullet[weap][i].x+3,my_bullet[weap][i].y+3,GetColor(255,255,255),true);
+				//DrawBox(my_bullet[weap][i].x-3,my_bullet[weap][i].y-3,my_bullet[weap][i].x+3,my_bullet[weap][i].y+3,GetColor(255,255,255),true);
+				if(weap==0) DrawGraph(my_bullet[weap][i].x-8,my_bullet[weap][i].y-8,graph::bullet[0],true);
+				if(2<=weap && weap<=4) DrawGraph(my_bullet[weap][i].x-4,my_bullet[weap][i].y-4,graph::bullet[1],true);
 			}
 		}
 	}
+
+
 
 
 	//GUI

@@ -9,6 +9,7 @@ namespace graph{
 	int pause_back;
 	int config_back;
 	int back[10];
+	int bullet[10];
 }
 using namespace graph;
 
@@ -34,6 +35,10 @@ void LoadGraphics(){
 	chara[0]=LoadGraph("res\\chara\\renkon.png");
 	chara[1]=LoadGraph("res\\chara\\renkon2.png");
 	chara[2]=LoadGraph("res\\chara\\renkon_fail.png");
+
+	//bullet
+	bullet[0]=LoadGraph("res\\bullet\\ballet1.png");
+	bullet[1]=LoadGraph("res\\bullet\\ballet2.png");
 
 }
 

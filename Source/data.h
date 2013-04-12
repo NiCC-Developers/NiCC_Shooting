@@ -6,6 +6,7 @@
 	extern int pause_back;
 	extern int config_back;
 	extern int back[10];
+	extern int bullet[];
 }
 
 extern void LoadGraphics();
