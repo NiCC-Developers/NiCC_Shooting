@@ -1,4 +1,4 @@
-﻿#include "common.h"
+﻿#include "includer.h"
 
 //グローバル変数
 namespace graph{
@@ -32,14 +32,15 @@ void LoadGraphics(){
 	compterve=LoadGraph("res\\craft\\COM_P_TERVE_03.png");
 
 	//character
-	chara[0]=LoadGraph("res\\chara\\renkon.png");
-	chara[1]=LoadGraph("res\\chara\\renkon2.png");
-	chara[2]=LoadGraph("res\\chara\\renkon_fail.png");
+	graph::chara[0]=LoadGraph("res\\chara\\renkon.png");
+	graph::chara[1]=LoadGraph("res\\chara\\renkon2.png");
+	graph::chara[2]=LoadGraph("res\\chara\\renkon_fail.png");
 
 	//bullet
 	bullet[0]=LoadGraph("res\\bullet\\ballet1.png");
 	bullet[1]=LoadGraph("res\\bullet\\ballet2.png");
-
+	//仮のデータ
+	bullet[2]=bullet[1];
 }
 
 //セーブデータ

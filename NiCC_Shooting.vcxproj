@@ -19,7 +19,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClInclude Include="Source\common.h" />
     <ClInclude Include="Source\data.h" />
+    <ClInclude Include="Source\includer.h" />
     <ClInclude Include="Source\main.h" />
     <ClInclude Include="Source\stage1.h" />
     <ClInclude Include="Source\stage1_p.h" />
@@ -99,6 +100,10 @@
     <ClCompile Include="Source\sysmain.cpp" />
     <ClCompile Include="Source\text.cpp" />
     <ClCompile Include="Source\ui.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\お知らせ.txt" />
+    <None Include="Source\メモ.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

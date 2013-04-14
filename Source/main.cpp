@@ -7,10 +7,11 @@ sysmain.cppのWinMain関数から呼び出されます。
 */
 
 
-#include "common.h"
+#include "includer.h"
 
 int active_bullets;
 bool talkphase=true;
+int JikiBulletDamageList[JIKI_BULLET_KIND]={3,1,1,1,1,2};
 
 
 typedef struct{
@@ -20,11 +21,12 @@ typedef struct{
 shield_t shield={4,4,false};
 
 namespace chara{
-	bullet_t tb[200]; //敵弾
-	bullet_t tmb[200]; //弾移動
-	bullet_t jb[200]; //自機弾
-	bullet_t my_bullet[10][200];
-	bullet_t jmb[200]; //使ってない
+	bullet_t tb[MAX_BULLET_NUM]; //敵弾
+	bullet_t tmb[MAX_BULLET_NUM]; //弾移動
+	bullet_t jb[MAX_BULLET_NUM]; //自機弾
+	TrackingBullet jikiTrackingBullet[MAX_BULLET_NUM];
+	bullet_t my_bullet[JIKI_BULLET_KIND][MAX_BULLET_NUM];
+	bullet_t jmb[MAX_BULLET_NUM]; //使ってない
 	jiki_t jiki={320,400,4,5,5,0,false,false};
 	teki_t boss[20]={
 		{320,30,100,100,false},
@@ -44,7 +46,7 @@ void Move();
 void TBulletMove();
 void JBulletMove();
 bool isJikiHit();
-bool isTekiHit();
+int TekiDamage();
 void Draw();
 void JikiDamage(int DamageValue);
 
@@ -74,10 +76,9 @@ int main(){
 	TBulletMove();
 	if(jiki.life.now <=0) return 1;
 	if(boss[0].life.now<=0) return 2;
-	if(isTekiHit()==true){
-		boss[0].damage=true;
-		boss[0].life.now-=1;
-	}else boss[0].damage=false;
+	int damage=TekiDamage();
+	boss[0].damage=(bool)damage;
+	boss[0].life.now-=damage;
 
 	active_bullets=0;
 	for(int i=0;i<100;i++){
@@ -217,7 +218,11 @@ void Draw(){
 			}
 		}
 	}
-
+	//WEAP_C
+	for(int i=0;i<MAX_BULLET_NUM;i++){
+		if(jikiTrackingBullet[i].avail==false)continue;
+		DrawGraph(jikiTrackingBullet[i].x-8,jikiTrackingBullet[i].y-8,graph::bullet[2],true);
+	}
 
 
 
@@ -307,7 +312,7 @@ void JBulletMove(){
 
 	//弾召喚
 	switch (jiki.weap){
-	case MD_WEAP_A:
+	case WEAP_A:
 		if(key[KEY_INPUT_Z]==1 && frame%2==1){
 			if(bullet_num[MD_WEAP_A]>=199) bullet_num[MD_WEAP_A]=0;
 			bullet_num[MD_WEAP_A]++;
@@ -318,7 +323,7 @@ void JBulletMove(){
 			}
 		}
 		break;
-	case MD_WEAP_B:
+	case WEAP_B:
 		if(key[KEY_INPUT_Z]==1 && frame%2==1){
 			if(bullet_num[MD_WEAP_B_WAY1]>=199) bullet_num[MD_WEAP_B_WAY1]=0;
 			bullet_num[MD_WEAP_B_WAY1]++;
@@ -343,6 +348,17 @@ void JBulletMove(){
 				my_bullet[MD_WEAP_B_WAY3][bullet_num[MD_WEAP_B_WAY3]].x=jiki.x;
 				my_bullet[MD_WEAP_B_WAY3][bullet_num[MD_WEAP_B_WAY3]].y=jiki.y;
 			}
+		}
+		break;
+	case WEAP_C:
+		if(key[KEY_INPUT_Z]==1 && frame%4==1){
+			bullet_num[MD_WEAP_C]++;
+			bullet_num[MD_WEAP_C]&=MAX_BULLET_NUM-1;
+			if(jikiTrackingBullet[bullet_num[MD_WEAP_C]].avail)break;
+			jikiTrackingBullet[bullet_num[MD_WEAP_C]].avail=true;
+			jikiTrackingBullet[bullet_num[MD_WEAP_C]].x=jiki.x;
+			jikiTrackingBullet[bullet_num[MD_WEAP_C]].y=jiki.y;
+			jikiTrackingBullet[bullet_num[MD_WEAP_C]].angle=-PI/2;
 		}
 		break;
 	default:
@@ -386,6 +402,10 @@ void JBulletMove(){
 			my_bullet[MD_WEAP_B_WAY3][i].avail=false;
 		}
 	}
+	//WEAP_C
+	for(int i=0;i<MAX_BULLET_NUM;i++){
+		jikiTrackingBullet[i].move();
+	}
 
 }
 
@@ -402,7 +422,7 @@ bool isJikiHit(){
 	return result;
 }
 
-bool isTekiHit(){
+int TekiDamage(){
 	switch(stage){
 	case 1:
 		return TekiHit_1();
@@ -435,15 +455,49 @@ void var_init(){
 	}
 }
 
-void JikiDamage(int dmg){
+void JikiDamage(int damage){
 
-	if(shield.life.now-dmg <= 0){
-		jiki.life.now-=dmg-shield.life.now;
+	if(shield.life.now-damage <= 0){
+		jiki.life.now-=damage-shield.life.now;
 		shield.life.now=0;
 	} else {
-		shield.life.now-=dmg;
+		shield.life.now-=damage;
 	}
 }
+
+pos searchNearTeki(pos bulletPos){
+	switch(stage){
+	case 1:
+		return searchNearTeki_1(bulletPos);
+	}
+}
+void TrackingBullet::move(){
+	if(avail==false)return;
+	pos bulletPos={x,y};
+	pos TekiPos=searchNearTeki(bulletPos);
+	float relativeAngle=-angle+atan2(TekiPos.y-y,TekiPos.x-x);
+	//回転量が小さくなるように調整
+	if(relativeAngle>PI){
+		relativeAngle-=2*PI;
+	}
+	else if(relativeAngle<-PI){
+		relativeAngle+=2*PI;
+	}
+	//回転制限
+	relativeAngle=min(maxLotate,max(-maxLotate,relativeAngle));
+	angle+=relativeAngle;
+	//-PI<angle<PIになるように
+	if(angle>PI){
+		angle-=2*PI;
+	}
+	else if(relativeAngle<-PI){
+		angle+=2*PI;
+	}
+	y+=TrackingBulletSpeed*sin(angle);
+	x+=TrackingBulletSpeed*cos(angle);
+	return;
+}
+
 
 /*
 

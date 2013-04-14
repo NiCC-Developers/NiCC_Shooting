@@ -5,7 +5,7 @@ ui.cpp
 
 */
 
-#include "common.h"
+#include "includer.h"
 
 namespace chara{
 	extern jiki_t jiki;

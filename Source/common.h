@@ -6,21 +6,11 @@ common.h
 
 #pragma once
 
-#include <DxLib.h>
-#include <math.h>
-#include <time.h>
-#include <string.h>
-
-#include "main.h"
-#include "sysmain.h"
-#include "ui.h"
-#include "text.h"
-#include "data.h"
-
-#include "stage1.h"
-
 //#DEFINE
 
+const unsigned int JIKI_BULLET_KIND=10;
+const unsigned int MAX_BULLET_NUM=256;
+extern int JikiBulletDamageList[JIKI_BULLET_KIND];
 #define PI 3.141592
 #define MD_WEAP_A 0
 #define MD_WEAP_B 1
@@ -36,6 +26,17 @@ typedef struct{
 	float y;
 	bool avail;
 }bullet_t;
+//追尾弾,MD_WEAP_C
+const float maxLotate=PI/180*3;
+const float TrackingBulletSpeed=3;
+struct TrackingBullet:bullet_t{
+	float angle;
+	void move();
+};
+//座標を返す
+struct pos{
+	float x,y;
+};
 
 //命クラス
 typedef struct{

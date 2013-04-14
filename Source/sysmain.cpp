@@ -6,7 +6,7 @@ main.cppのmainで描画した内容を、ループごとにフリップ・消�
 mainでは、WaitKeyなどでループから脱出しない場合を除きScreenFlipを行う必要はありません。
 */
 
-#include "common.h"
+#include "includer.h"
 
 //グローバル変数
 unsigned short int frame=0; //フレーム用変数

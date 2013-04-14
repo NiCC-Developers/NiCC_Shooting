@@ -7,7 +7,7 @@ stage1.cpp
 */
 
 
-#include "common.h"
+#include "includer.h"
 #include "stage1_p.h"
 
 using namespace chara;
@@ -32,13 +32,25 @@ void TekiDraw_1(int x,int y,bool flag){
 
 }
 
-bool TekiHit_1(){
-	static bool result;
-	result=false;
-		for(int weap=0; weap<=9; weap++){
+int TekiHit_1(){
+	int result;
+	result=0;
+	for(int weap=0; weap<=9; weap++){
+		if(weap==MD_WEAP_C){
+			for(int i=0;i<MAX_BULLET_NUM;i++){
+				//判定は仮
+				if(jikiTrackingBullet[i].avail&&boss[0].x-30<jikiTrackingBullet[i].x && jikiTrackingBullet[i].x<boss[0].x+30 && boss[0].y-10<jikiTrackingBullet[i].y && jikiTrackingBullet[i].y<boss[0].y+10){
+					result+=JikiBulletDamageList[weap];
+					jikiTrackingBullet[i].avail=false;
+				}
+			}
+		}
+		else{
 			for(int i=0;i<=199;i++){
-				if(boss[0].x-30<my_bullet[weap][i].x && my_bullet[weap][i].x<boss[0].x+30 && boss[0].y-10<my_bullet[weap][i].y && my_bullet[weap][i].y<boss[0].y+10){
-				result=true;
+				if(my_bullet[weap][i].avail&&boss[0].x-30<my_bullet[weap][i].x && my_bullet[weap][i].x<boss[0].x+30 && boss[0].y-10<my_bullet[weap][i].y && my_bullet[weap][i].y<boss[0].y+10){
+					result+=JikiBulletDamageList[weap];
+					my_bullet[weap][i].avail=false;
+				}
 			}
 		}
 	}
@@ -83,4 +95,9 @@ void ShowNobel_1(){
 	
 	WriteNobelString("ゆけ！戦艦穂高丸！");
 	WriteNobelString("手当たり次第にその辺の敵を叩き潰すのだ！");
+}
+
+pos searchNearTeki_1(pos bulletPos){
+	pos returnVal={boss[0].x,boss[0].y};
+	return returnVal;
 }

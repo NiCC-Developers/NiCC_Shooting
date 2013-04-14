@@ -1,5 +1,5 @@
 ﻿/*
-stage1_p.h
+stage1_p.h->stage1.h
 
 ヘッダファイル名にアンダースコア＋P (Private)がついているものは、対応した名前のcppファイルだけからincludeするように（プログラマ側で）します。
 たとえば、この場合はstage1.cppからstage1_p.hを読み込みますが、他のcppからは参照されません。
@@ -9,16 +9,16 @@ stage1_p.h
 逆に、cppで定義した関数を公開したい場合は _pがついていないヘッダでexternし、common.hに追加して使います。
 */
 
-namespace chara{
-	extern bullet_t tb[200]; /*敵弾*/
-	extern bullet_t tmb[200]; /*弾移動*/
-	extern bullet_t jb[200]; /*自機弾*/
-	extern bullet_t my_bullet[4][200];
-	extern bullet_t jmb[200];
-	extern jiki_t jiki;
-	extern teki_t boss[20];
-}
-
-namespace sys{
-	extern square_t framesize;
-}
+//namespace chara{
+//	extern bullet_t tb[200]; /*敵弾*/
+//	extern bullet_t tmb[200]; /*弾移動*/
+//	extern bullet_t jb[200]; /*自機弾*/
+//	extern bullet_t my_bullet[JikiBulletKind][200];
+//	extern bullet_t jmb[200];
+//	extern jiki_t jiki;
+//	extern teki_t boss[20];
+//}
+//
+//namespace sys{
+//	extern square_t framesize;
+//}

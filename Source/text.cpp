@@ -5,7 +5,7 @@ text.cpp
 参考： http://karetta.jp/book-node/game-programming/235056
 */
 
-#include "common.h"
+#include "includer.h"
 #include "sysmain.h"
 
 #define MSG_MAX_LINE 5
