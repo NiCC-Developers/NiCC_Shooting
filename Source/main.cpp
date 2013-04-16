@@ -6,12 +6,10 @@ main.cpp
 sysmain.cppのWinMain関数から呼び出されます。
 */
 
-
 #include "common.h"
 
 int active_bullets;
 bool talkphase=true;
-
 
 typedef struct{
 	life_t life;
@@ -218,9 +216,6 @@ void Draw(){
 		}
 	}
 
-
-
-
 	//GUI
 	DrawBox(framesize.right,0,640,480,GetColor(255,255,255),true);
 	DrawBox(0,0,640*boss[0].life.now/boss[0].life.max,10,Cred,true);
@@ -240,7 +235,6 @@ void Draw(){
 	DrawFormatString(framesize.right+20,300,Cblack,"敵のやる気：%d",boss[0].life.now);
 	DrawFormatString(framesize.right+20,340,Cred,"frame：%d",frame);
 	
-
 }
 
 void Move(){
@@ -273,7 +267,6 @@ void Move(){
 	case 1:
 		TekiMove_1(&boss[0].x,&boss[0].y);
 		break;
-
 	}
 
 	//自機画面外処理
@@ -285,15 +278,12 @@ void Move(){
 }
 
 void TBulletMove(){
-
 	//敵弾発射
 	switch(stage){
 	case 1:
 		TekiBullet_1();
 		break;
-
 	}
-
 }
 
 void JBulletMove(){
@@ -444,30 +434,3 @@ void JikiDamage(int dmg){
 		shield.life.now-=dmg;
 	}
 }
-
-/*
-
-Q.コードの書き方が汚いです
-
-A.
-　':,　　　　 ',　　　_____,,.. -‐ ''"´￣￣｀"'' ｰ　､.,　　　　　　　　 　／
-　　':,　　　　',　　 ＞'　´　　　　　　　　　　　　　｀ヽ.　　　　　　 /　　　　知
-　　　':,　　　　 ／　　　　　　　　　　　　　　　　　 　 ヽ.　　　　 ,'　　    　 っ
-　　　　':,　　 ,:' ／　　 ／　 　,'´　　　　　　　 ヽ.　　 　 ':,/Ti　 i.　　そ　て
-.　＼　　　　,' /　　　/　 ,'　　!　　　　 　;　 　',　 ヽ__　／::::| |　|　　 ん　る
-　　　＼　 / ,'　　　,'!　 /!　　!　 　;　　/!　　　i　 「:::|'´::::::::| |　.!.　 な  わ
-　　　　 ∠__,!　　 / !メ､」_,,./| 　 /!　/　!　　 ﾊ!　|__」＜:::::」」　|.　　 こ  よ
-｀"''　 ､..,,_　 !　 /　,ｧ7´, `iヽ|　/　|ヽ､」ﾆイ､　|　 !　|^ヽ､」」 　|.　　 と
-　　　　　　　i,／ﾚｲ　i┘　i.　ﾚ' 　 'ｱ´!_」 ハヽ|　　　|　　　| ∠　　　 ! !
-─--　 　 　/　　 !　 ゝ- '　　　　 　　! 　　 !　!　　　|　　　|　　｀ヽ.
-　　　　　　/　 　7/l/l/　　　､　　 　　`'ｰ‐ '_ノ!　　　|　 i　 |　 　　｀ ' ｰ---
-,. -──-'､　　,人　　　　｀i`ｧｰ-- ､　　/l/l/l |　　　 !.　|　 |
-　　　　　　 ヽ.ｿ　 `: ､. 　　ﾚ'　　　　', 　 u　,/|　　　 |　 !　 |
-　と　　今　　i　　/ｰﾅ= ､ '､　　　　ﾉ　　,.イ,ｶ　　　 !　 |　 |
-　こ　　修  　.|ﾍ./|／レへ｀＞-r　 =ﾆi´､.,_　|　 i　 ﾊ　 !　,'
-　ろ　　正　　 !　　　　 _,.イ´ヽ.7　　 ／　 /:::|　/ﾚ'　 ﾚ'ﾚ'
-　な　　し　　 | 　　／7:::::!　　○Ｏ'´　　/::::::ﾚ'ヽ.
-　の　  て　　.|　 /　 /:::::::レ'/ムヽ.　　/::::::::/ 　 ヽ.
-　! !　　る　　 ! ./　 ,':::::::::::!/　ハ:::::｀´:::::::::::;'　　　　',
-
-*/
