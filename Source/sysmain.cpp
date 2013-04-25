@@ -73,9 +73,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 	}
 
 	//メインループ
-	start:
+start:
 
 	while(ProcessMessage()==0/* && CheckHitKey(KEY_INPUT_ESCAPE)==0*/){
+		char buf[20];
+		OutputDebugString(itoa(frame,buf,10));
+		OutputDebugString("\n");
 
 		fps=GetFPS();
 		GetHitKeyStateAll(key);
@@ -120,13 +123,13 @@ double GetFPS(){
 	static double result=0;
 	static double tmptime[2];
 
-	if(frame==0){
+	if(!frame){
 		tmptime[0]=GetNowCount();
 	}
 	
-	if(frame>=29){
+	if(!(frame^32)){
 		tmptime[1]=GetNowCount();
-		result=1000.0f/((tmptime[1]-tmptime[0])/30.0f);
+		result=1000.0f/((tmptime[1]-tmptime[0])/32.0f);
 		frame=0;
 	}else frame++;
 

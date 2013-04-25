@@ -313,7 +313,7 @@ void JBulletMove(){
 	//弾召喚
 	switch (jiki.weap){
 	case WEAP_A:
-		if(key[KEY_INPUT_Z]==1 && frame%2==1){
+		if(key[KEY_INPUT_Z]==1 && frame%4==1){
 			if(bullet_num[MD_WEAP_A]>=199) bullet_num[MD_WEAP_A]=0;
 			bullet_num[MD_WEAP_A]++;
 			if(my_bullet[MD_WEAP_A][bullet_num[MD_WEAP_A]].avail==false){
@@ -351,7 +351,7 @@ void JBulletMove(){
 		}
 		break;
 	case WEAP_C:
-		if(key[KEY_INPUT_Z]==1 && frame%4==1){
+		if(key[KEY_INPUT_Z]==1 && frame%16==1){
 			bullet_num[MD_WEAP_C]++;
 			bullet_num[MD_WEAP_C]&=MAX_BULLET_NUM-1;
 			if(jikiTrackingBullet[bullet_num[MD_WEAP_C]].avail)break;
@@ -445,13 +445,20 @@ void var_init(){
 	shield.life.now=shield.life.max;
 	boss[0].life.now=boss[0].life.max;
 
-	for(int i=0;i<200;i++){
+	for(int i=0;i<MAX_BULLET_NUM;i++){
 		jb[i].x=-1;
 		jb[i].y=-1;
 		jb[i].avail=false;
 		tb[i].x=-1;
 		tb[i].y=-1;
 		tb[i].avail=false;
+
+		jikiTrackingBullet[i].avail=false;
+	}
+	for(int weap=0;weap<JIKI_BULLET_KIND;weap++){
+		for(int i=0;i<MAX_BULLET_NUM;i++){
+			my_bullet[weap][i].avail=false;
+		}
 	}
 }
 

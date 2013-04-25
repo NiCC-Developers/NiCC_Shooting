@@ -88,7 +88,6 @@
     <ClInclude Include="Source\includer.h" />
     <ClInclude Include="Source\main.h" />
     <ClInclude Include="Source\stage1.h" />
-    <ClInclude Include="Source\stage1_p.h" />
     <ClInclude Include="Source\sysmain.h" />
     <ClInclude Include="Source\text.h" />
     <ClInclude Include="Source\ui.h" />

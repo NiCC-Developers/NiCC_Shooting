@@ -27,9 +27,6 @@
     <ClInclude Include="Source\stage1.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\stage1_p.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Source\sysmain.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>

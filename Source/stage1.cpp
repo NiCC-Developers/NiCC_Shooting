@@ -8,7 +8,6 @@ stage1.cpp
 
 
 #include "includer.h"
-#include "stage1_p.h"
 
 using namespace chara;
 using namespace sys;

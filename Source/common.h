@@ -28,7 +28,7 @@ typedef struct{
 }bullet_t;
 //追尾弾,MD_WEAP_C
 const float maxLotate=PI/180*3;
-const float TrackingBulletSpeed=3;
+const float TrackingBulletSpeed=5;
 struct TrackingBullet:bullet_t{
 	float angle;
 	void move();
