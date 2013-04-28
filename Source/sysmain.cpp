@@ -9,7 +9,7 @@ mainでは、WaitKeyなどでループから脱出しない場合を除きScreen
 #include "includer.h"
 
 //グローバル変数
-unsigned short int frame=0; //フレーム用変数
+unsigned int frame=0; //フレーム用変数
 double fps=0.0; //FPS
 char key[256]; //キーの入力状態格納
 int Cred, Cblack, Cblue, Cgreen, Cwhite; //色定義
@@ -127,11 +127,12 @@ double GetFPS(){
 		tmptime[0]=GetNowCount();
 	}
 	
-	if(!(frame^32)){
+	if(!(frame&31)){
 		tmptime[1]=GetNowCount();
 		result=1000.0f/((tmptime[1]-tmptime[0])/32.0f);
-		frame=0;
-	}else frame++;
+		tmptime[0]=tmptime[1];
+	}
+	frame++;
 
 	return result;
 }

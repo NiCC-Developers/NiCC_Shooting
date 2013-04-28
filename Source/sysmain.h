@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-extern unsigned short int frame;
+extern unsigned int frame;
 extern char key[256];
 extern int Cred, Cblack, Cblue, Cgreen, Cwhite;
 extern int Fsmall,Fnorm;
