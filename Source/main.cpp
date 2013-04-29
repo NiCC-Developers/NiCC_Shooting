@@ -11,6 +11,8 @@ sysmain.cppのWinMain関数から呼び出されます。
 int active_bullets;
 bool talkphase=true;
 int JikiBulletDamageList[JIKI_BULLET_KIND]={3,1,1,1,1,2};
+float TekiMaxLotate=PI/180*1;
+float TekiTrackingBulletSpeed=4;
 
 typedef struct{
 	life_t life;
@@ -394,7 +396,7 @@ void JBulletMove(){
 	}
 	//WEAP_C
 	for(int i=0;i<MAX_BULLET_NUM;i++){
-		jikiTrackingBullet[i].move();
+		jikiTrackingBullet[i].JikiMove();
 	}
 
 }
@@ -467,7 +469,7 @@ pos searchNearTeki(pos bulletPos){
 		return searchNearTeki_1(bulletPos);
 	}
 }
-void TrackingBullet::move(){
+void TrackingBullet::JikiMove(){
 	if(avail==false)return;
 	pos bulletPos={x,y};
 	pos TekiPos=searchNearTeki(bulletPos);
@@ -491,6 +493,30 @@ void TrackingBullet::move(){
 	}
 	y+=TrackingBulletSpeed*sin(angle);
 	x+=TrackingBulletSpeed*cos(angle);
+	return;
+}
+void TrackingBullet::TekiMove(){
+	if(avail==false)return;
+	float relativeAngle=-angle+atan2(chara::jiki.y-y,chara::jiki.x-x);
+	//回転量が小さくなるように調整
+	if(relativeAngle>PI){
+		relativeAngle-=2*PI;
+	}
+	else if(relativeAngle<-PI){
+		relativeAngle+=2*PI;
+	}
+	//回転制限
+	relativeAngle=min(TekiMaxLotate,max(-TekiMaxLotate,relativeAngle));
+	angle+=relativeAngle;
+	//-PI<angle<PIになるように
+	if(angle>PI){
+		angle-=2*PI;
+	}
+	else if(relativeAngle<-PI){
+		angle+=2*PI;
+	}
+	y+=TekiTrackingBulletSpeed*sin(angle);
+	x+=TekiTrackingBulletSpeed*cos(angle);
 	return;
 }
 
