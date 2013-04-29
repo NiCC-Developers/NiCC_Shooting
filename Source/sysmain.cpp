@@ -77,8 +77,6 @@ start:
 
 	while(ProcessMessage()==0/* && CheckHitKey(KEY_INPUT_ESCAPE)==0*/){
 		char buf[20];
-		OutputDebugString(itoa(frame,buf,10));
-		OutputDebugString("\n");
 
 		fps=GetFPS();
 		GetHitKeyStateAll(key);
