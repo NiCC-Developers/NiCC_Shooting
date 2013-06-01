@@ -75,15 +75,17 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 	//メインループ
 start:
 
-	float NextFrameTime=GetNowCount();
 	const float SecondPerFrame=16.66666667;
+	float NextFrameTime=GetNowCount();
+	float PastFrameTime=0;
+	float TargetRelativeTime;
 
 	while(ProcessMessage()==0/* && CheckHitKey(KEY_INPUT_ESCAPE)==0*/){
 		//FPS固定応急処置
-		NextFrameTime+=SecondPerFrame;
-		if(GetNowCount()< NextFrameTime){
-			WaitTimer(NextFrameTime-GetNowCount());
+		if(GetNowCount()-PastFrameTime<SecondPerFrame){
+			WaitTimer(SecondPerFrame-(GetNowCount()-PastFrameTime));
 		}
+		PastFrameTime=GetNowCount();
 
 		fps=GetFPS();
 		GetHitKeyStateAll(key);
