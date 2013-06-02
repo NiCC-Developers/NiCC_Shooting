@@ -35,8 +35,11 @@ int StartScreen(){
 		{"Config",Cwhite,STR_LINE,250,},
 		{"Exit",Cwhite,STR_LINE,300,},
 	};
-
+	
+	FpsStabilizer FpsStabilizer_Start;
 	while(ProcessMessage()==0 && decision==-2){
+		FpsStabilizer_Start.Do();
+		FpsStabilizer_Start.Init();
 		ClearDrawScreen();
 		GetHitKeyStateAll(key);
 		if(past_push==false){ //メニュー移動
@@ -101,7 +104,11 @@ int ConfigScreen(){
 		{"BGM Vol",Cwhite,STR_LINE,200, bgmvol}, {"SE Vol",Cwhite,STR_LINE,250, sevol}, {"Full Screen",Cwhite,STR_LINE,300, isfullscreen}
 	};
 
+	FpsStabilizer FpsStabilizer_Config;
+
 	while(ProcessMessage()==0 && decision==-2){
+		FpsStabilizer_Config.Do();
+		FpsStabilizer_Config.Init();
 		ClearDrawScreen();
 		DrawGraph(0,0,ScreenShot,false);
 		DrawGraph(100,100,graph::config_back,true);
@@ -199,8 +206,10 @@ int PauseGame(){
 		{"ゲームの終了",Cwhite,STR_LINE,300,},
 	};
 	
-
+	FpsStabilizer FpsStabilizer_Pause;
 	while(ProcessMessage()==0 && decision==-2){
+		FpsStabilizer_Pause.Do();
+		FpsStabilizer_Pause.Init();
 		ClearDrawScreen();
 		DrawGraph(0,0,ScreenShot,false);
 

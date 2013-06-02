@@ -82,9 +82,11 @@ void WriteNobelString(char* str){
 	int line=0;
 	int defx=60;
 	int defy=360;
-
+	
+	FpsStabilizer FpsStabilizer_Nobel;
 	for(int i=0; str[i]!='\0' && CheckHitKey(KEY_INPUT_LCONTROL)==0 ; i++){
-
+		FpsStabilizer_Nobel.Do();
+		FpsStabilizer_Nobel.Init();
 		ClearDrawScreen();
 		DrawGraph(0,0,graph::back[0],true);
 		DrawCharaGraph(chara_num);

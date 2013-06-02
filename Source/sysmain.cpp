@@ -75,17 +75,11 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 	//メインループ
 start:
 
-	const float SecondPerFrame=16.66666667;
-	float NextFrameTime=GetNowCount();
-	float PastFrameTime=0;
-	float TargetRelativeTime;
+	FpsStabilizer FpsStabilizer_Main;
 
 	while(ProcessMessage()==0/* && CheckHitKey(KEY_INPUT_ESCAPE)==0*/){
-		//FPS固定応急処置
-		if(GetNowCount()-PastFrameTime<SecondPerFrame){
-			WaitTimer(SecondPerFrame-(GetNowCount()-PastFrameTime));
-		}
-		PastFrameTime=GetNowCount();
+		FpsStabilizer_Main.Do();
+		FpsStabilizer_Main.Init();
 
 		fps=GetFPS();
 		GetHitKeyStateAll(key);
@@ -166,4 +160,18 @@ void SetColor(){
 void SetFont(){
 	Fsmall=CreateFontToHandle(NULL,12,4);
 	Fnorm=CreateFontToHandle(NULL,14,4);
+}
+
+void FpsStabilizer::Do(){
+	if(GetNowCount()-PastFrameTime<SecondPerFrame){
+		WaitTimer(SecondPerFrame-(GetNowCount()-PastFrameTime));
+	}
+}
+void FpsStabilizer::Init(){
+	PastFrameTime=GetNowCount();
+}
+FpsStabilizer::FpsStabilizer(){
+	//コンストラクタ
+	SecondPerFrame=16.66666667;
+	PastFrameTime=0;
 }
