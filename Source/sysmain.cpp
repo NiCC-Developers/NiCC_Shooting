@@ -1,57 +1,62 @@
 ﻿/*
 sysmain.cpp
+ゲームの大部分で使用する関数等を定義します。
+ここのWinMain関数からプログラムがスタートするので、初期化したい内容等を記述してください。
+ゲームの1フレーム内での内容をmain.cpp内のmain()に記述し、ここでループさせます。
 
-ここのWinMain関数からスタートします。
-main.cppのmainで描画した内容を、ループごとにフリップ・消去します。
-mainでは、WaitKeyなどでループから脱出しない場合を除きScreenFlipを行う必要はありません。
+ChangeWindowMode()など、DxLib_Init()を呼ぶ前にしか変更できない物もあるので初期化の順番に注意してください。
 */
 
 #include "includer.h"
 
-//グローバル変数
-unsigned int frame=0; //フレーム用変数
+//--------------------グローバル変数 --------------------
+unsigned int frame=0; //現在のフレーム数をカウント
 double fps=0.0; //FPS
 char key[256]; //キーの入力状態格納
-int Cred, Cblack, Cblue, Cgreen, Cwhite; //色定義
-int Fsmall,Fnorm;
-int stage=1; //ステージ番号
-unsigned int StartTime;
-int ScreenShot;
-Save_t ConfigData={100, 100, false};
+int Cred, Cblack, Cblue, Cgreen, Cwhite; //GetColor()の代わりに使用出来る色セット
+int Fsmall,Fnorm; //大きさなどを自分で定義したフォントのハンドル。DrawStringToHandle()などで呼び出せます。リファレンス参照のこと
+int stage=1; //現在のステージ番号
+unsigned int StartTime; 
+int ScreenShot; //スクショ保存用ハンドル
+Save_t ConfigData={100, 100, false}; //コンフィグデータ初期値
 
-//関数プロトタイプ宣言
-double GetFPS(); 
-void SetColor();
-void SetFont();
+//-------------------関数プロトタイプ宣言 -------------------
+double GetFPS(); //FPSを取得
+void SetColor(); //色セットを定義
+void SetFont(); //カスタムフォントデータを作成
 
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine, int nCmdShow ){
 
-	//初期化-----
+	//-------------------初期化ここから-------------------
 	LoadConfigData();//設定の読み込み
 	if(ConfigData.isFullscreen == true) ChangeWindowMode(false); else ChangeWindowMode(true);
 	srand((unsigned)time(NULL)); //乱数のシード値をランダムに指定
-	if(DxLib_Init()==-1) return -1; //---------------------------DXLib初期化-----------------------------
+
+	//------------------- これより下はDxLib初期化済み -------------------
+	if(DxLib_Init()==-1) return -1;
 	SetDrawScreen(DX_SCREEN_BACK); //裏描画設定
 	ScreenShot=MakeGraph(640,480);
 	ChangeFontType(DX_FONTTYPE_ANTIALIASING_4X4);
-	SetColor(); //色定義
-	SetFont(); //フォント定義
-
+	SetColor(); //色セットの定義
+	SetFont(); //カスタムフォントデータを作成
 	LoadGraphics(); //画像の読み込み
-	//初期化終了-----
+	//-------------------初期化終了-------------------
 
 #define MD_STARTMENU_BEGIN 0
 #define MD_STARTMENU_END 1
 #define MD_STARTMENU_CONFIG 2
-	title:
-	switch(StartScreen()){ //スタート画面
+title:
+
+	//スタート画面
+	switch(StartScreen()){
 	case -1:
 		goto end;
 		break;
 	case 0:
 		break; //開始
 	case 1:
+		//ポップアップウィンドウを表現するためにスクショを取得
 		GetDrawScreenGraph(0,0,640,480,ScreenShot);
 		switch(ConfigScreen()){
 		case 0:
@@ -77,7 +82,7 @@ start:
 
 	FpsStabilizer FpsStabilizer_Main;
 
-	while(ProcessMessage()==0/* && CheckHitKey(KEY_INPUT_ESCAPE)==0*/){
+	while(ProcessMessage()==0){
 		FpsStabilizer_Main.Do();
 		FpsStabilizer_Main.Init();
 
@@ -162,6 +167,7 @@ void SetFont(){
 	Fnorm=CreateFontToHandle(NULL,14,4);
 }
 
+//FPS安定クラスの関数定義
 void FpsStabilizer::Do(){
 	if(GetNowCount()-PastFrameTime<SecondPerFrame){
 		WaitTimer(SecondPerFrame-(GetNowCount()-PastFrameTime));

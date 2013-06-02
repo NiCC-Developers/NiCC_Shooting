@@ -8,9 +8,9 @@ sysmain.cppのWinMain関数から呼び出されます。
 
 #include "includer.h"
 
-int active_bullets;
-bool talkphase=true;
-int JikiBulletDamageList[JIKI_BULLET_KIND]={3,1,1,1,1,2};
+int active_bullets; //有効な弾
+bool talkphase=true; //テキストダイアログが出るか
+int JikiBulletDamageList[JIKI_BULLET_KIND]={3,1,1,1,1,2}; //各弾のダメージ値
 float TekiMaxLotate=PI/180*1;
 float TekiTrackingBulletSpeed=4;
 
@@ -24,7 +24,7 @@ namespace chara{
 	bullet_t tb[MAX_BULLET_NUM]; //敵弾
 	bullet_t tmb[MAX_BULLET_NUM]; //弾移動
 	bullet_t jb[MAX_BULLET_NUM]; //自機弾
-	TrackingBullet jikiTrackingBullet[MAX_BULLET_NUM];
+	TrackingBullet jikiTrackingBullet[MAX_BULLET_NUM]; //ホーミング弾
 	bullet_t my_bullet[JIKI_BULLET_KIND][MAX_BULLET_NUM];
 	bullet_t jmb[MAX_BULLET_NUM]; //使ってない
 	jiki_t jiki={320,400,4,5,5,0,false,false};
@@ -42,20 +42,21 @@ using namespace chara;
 using namespace sys;
 
 //関数プロトタイプ宣言
-void Move();
-void TBulletMove();
-void JBulletMove();
-bool isJikiHit();
-int TekiDamage();
-void Draw();
-void JikiDamage(int DamageValue);
+void Move(); //自機と敵の移動
+void TBulletMove(); //敵弾の移動
+void JBulletMove(); //自機弾の移動
+bool isJikiHit(); //自機の当たり判定
+int TekiDamage(); //敵へのダメージ
+void Draw(); //描画
+void JikiDamage(int DamageValue); //自機へのダメージ
 
-c_timer Timer;
+c_timer Timer; //タイマー
 
 //メインループ---------------------------------
 int main(){
-	DrawGraph(0,0,graph::back[0],true);
+	DrawGraph(0,0,graph::back[0],true); //背景
 
+	//ノベルモードに入るかどうか
 	if(talkphase==true){
 		ShowNobel();
 		talkphase=false;
@@ -63,6 +64,8 @@ int main(){
 
 	Move();
 	JBulletMove();
+
+	//自機弾ヒット時の処理
 	if(isJikiHit()==true){
 		//jiki.life.now-=1;
 		JikiDamage(1);
@@ -74,6 +77,8 @@ int main(){
 		shield.isDamage=false;
 	}
 	TBulletMove();
+
+	//残りライフチェック
 	if(jiki.life.now <=0) return 1;
 	if(boss[0].life.now<=0) return 2;
 	int damage=TekiDamage();
@@ -86,6 +91,7 @@ int main(){
 	}
 	Draw();
 
+	//ポーズ開始処理
 	static bool past_push=true;
 	if(key[KEY_INPUT_ESCAPE]==1 && past_push==false){
 		GetDrawScreenGraph(0,0,640,480,ScreenShot,false);
@@ -95,7 +101,7 @@ int main(){
 }
 //---------------------------------------------
 
-
+//描画関数
 void Draw(){
 	//ボス
 	switch(stage){
@@ -114,7 +120,6 @@ void Draw(){
 	}
 
 	//シールド
-
 	static bool isChargeTime=false;
 	if(isChargeTime==false){
 		Timer.init(MD_TIMER_SHIELD);

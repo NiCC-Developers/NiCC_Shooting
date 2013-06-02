@@ -2,7 +2,6 @@
 ui.cpp
 
 スタート画面などのUIを呼び出す関数です。
-
 */
 
 #include "includer.h"
@@ -82,20 +81,20 @@ int StartScreen(){
 int ConfigScreen(){
 
 
-	char key[256];
+	char key[256]; //キー押下状態格納
 	int sel=0; //現在選択している項目
 	int decision=-2; //決定した項目
-	int title_h=LoadGraph("res\\gui\\title.png"); //タイトル
+	int title_h=LoadGraph("res\\gui\\title.png"); //タイトル画像
 	bool past_push=true; //ボタン押しっぱなし回避
-	int bgmvol=100;
-	int sevol=100;
-	bool isfullscreen=false;
+	int bgmvol=100; //BGMのボリューム *未実装
+	int sevol=100; //SEのボリューム *未実装
+	bool isfullscreen=false; //フルスクリーンモード
 
 	const int ELEM_NUM=3; //メニュー要素数
 	const int STR_LINE=200; //メニューX座標
-	const int CFG_BGM=0;
-	const int CFG_SE=1;
-	const int CFG_FULLSCREEN=2;
+	const int CFG_BGM=0; //BGMは0番目
+	const int CFG_SE=1; //SEは1番目
+	const int CFG_FULLSCREEN=2; //フルスクリーンは2番目
 
 	Save_t tmpConfigData=ConfigData;
 
