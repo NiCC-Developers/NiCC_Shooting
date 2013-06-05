@@ -54,8 +54,9 @@ c_timer Timer; //タイマー
 
 //メインループ---------------------------------
 int main(){
-	DrawGraph(0,0,graph::back[0],true); //背景
-
+	if(!FpsStabilizer_Main.skipedCheck()){
+		DrawGraph(0,0,graph::back[0],true); //背景
+	}
 	//ノベルモードに入るかどうか
 	if(talkphase==true){
 		ShowNobel();
@@ -89,15 +90,18 @@ int main(){
 	for(int i=0;i<100;i++){
 		if(tb[i].avail==true) active_bullets++;
 	}
-	Draw();
+	if(!FpsStabilizer_Main.skipedCheck()){
+		//スキップしない
+		Draw();
 
-	//ポーズ開始処理
-	static bool past_push=true;
-	if(key[KEY_INPUT_ESCAPE]==1 && past_push==false){
-		GetDrawScreenGraph(0,0,640,480,ScreenShot,false);
-		if(PauseGame()==-1) return -1;
+		//ポーズ開始処理
+		static bool past_push=true;
+		if(key[KEY_INPUT_ESCAPE]==1 && past_push==false){
+			GetDrawScreenGraph(0,0,640,480,ScreenShot,false);
+			if(PauseGame()==-1) return -1;
+		}
+		if(CheckHitKeyAll()==0) past_push=false; else past_push=true;
 	}
-	if(CheckHitKeyAll()==0) past_push=false; else past_push=true;
 }
 //---------------------------------------------
 

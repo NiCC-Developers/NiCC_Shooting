@@ -10,8 +10,8 @@ ChangeWindowMode()など、DxLib_Init()を呼ぶ前にしか変更できない�
 #include "includer.h"
 
 //--------------------グローバル変数 --------------------
-unsigned int frame=0; //現在のフレーム数をカウント
-double fps=0.0; //FPS
+unsigned int frame=0,drawFrame=0; //現在のフレーム数をカウント
+double fps=0.0,cpu_fps=0.0; //FPS
 char key[256]; //キーの入力状態格納
 int Cred, Cblack, Cblue, Cgreen, Cwhite; //GetColor()の代わりに使用出来る色セット
 int Fsmall,Fnorm; //大きさなどを自分で定義したフォントのハンドル。DrawStringToHandle()などで呼び出せます。リファレンス参照のこと
@@ -19,9 +19,11 @@ int stage=1; //現在のステージ番号
 unsigned int StartTime; 
 int ScreenShot; //スクショ保存用ハンドル
 Save_t ConfigData={100, 100, false}; //コンフィグデータ初期値
+FpsStabilizer FpsStabilizer_Main;
 
 //-------------------関数プロトタイプ宣言 -------------------
 double GetFPS(); //FPSを取得
+double GetFPS_CPU(); //FPS(CPU処理レート)を取得
 void SetColor(); //色セットを定義
 void SetFont(); //カスタムフォントデータを作成
 
@@ -80,16 +82,19 @@ title:
 	//メインループ
 start:
 
-	FpsStabilizer FpsStabilizer_Main;
 
-	while(ProcessMessage()==0){
-		FpsStabilizer_Main.Do();
-		FpsStabilizer_Main.Init();
-
-		fps=GetFPS();
-		GetHitKeyStateAll(key);
-		ClearDrawScreen();
-
+	while(1){
+		//FpsStabilizer_Main.Init();
+		cpu_fps=GetFPS_CPU();
+		if(!FpsStabilizer_Main.skip()){
+			if(ProcessMessage()!=0){
+				break;
+			}
+			GetHitKeyStateAll(key);
+			FpsStabilizer_Main.Do();
+			fps=GetFPS();
+			ClearDrawScreen();
+		}
 		//main関数を呼び出し、返り値が0以外なら何か実行
 		switch(main()){
 		case -1:
@@ -111,10 +116,10 @@ start:
 			goto start;
 			break;
 		}
-
-		DrawFormatString(0,450,GetColor(255,255,255),"%.1f FPS",fps);
-
-		ScreenFlip();
+		if(!FpsStabilizer_Main.skipedCheck()){
+			DrawFormatString(0,450,GetColor(255,255,255),"%.1f FPS(CPU:%.1f)",fps,cpu_fps);
+			ScreenFlip();
+		}
 	}
 
 end:
@@ -124,8 +129,8 @@ end:
 	return 0;
 }
 
-//FPSを取得する関数
-double GetFPS(){
+//FPSを取得する関数(CPU処理レート)
+double GetFPS_CPU(){
 	static double result=0;
 	static double tmptime[2];
 
@@ -139,6 +144,23 @@ double GetFPS(){
 		tmptime[0]=tmptime[1];
 	}
 	frame++;
+
+	return result;
+}
+double GetFPS(){
+	static double result=0;
+	static double tmptime[2];
+
+	if(drawFrame==0){
+		tmptime[0]=GetNowCount();
+	}
+	
+	if((drawFrame&31)==0){
+		tmptime[1]=GetNowCount();
+		result=1000.0f/((tmptime[1]-tmptime[0])/32.0f);
+		tmptime[0]=tmptime[1];
+	}
+	drawFrame++;
 
 	return result;
 }
@@ -167,17 +189,15 @@ void SetFont(){
 	Fnorm=CreateFontToHandle(NULL,14,4);
 }
 
-//FPS安定クラスの関数定義
-void FpsStabilizer::Do(){
-	if(GetNowCount()-PastFrameTime<SecondPerFrame){
-		WaitTimer(SecondPerFrame-(GetNowCount()-PastFrameTime));
-	}
-}
-void FpsStabilizer::Init(){
-	PastFrameTime=GetNowCount();
-}
-FpsStabilizer::FpsStabilizer(){
-	//コンストラクタ
-	SecondPerFrame=16.66666667;
-	PastFrameTime=0;
+
+void debugtimer(char* before){
+	static int past;
+	int now=GetNowCount();
+	char cash[50];
+	itoa(now-past,cash,10);
+	OutputDebugString(before);
+	OutputDebugString(cash);
+	OutputDebugString("\n");
+	past=now;
+	return;
 }
