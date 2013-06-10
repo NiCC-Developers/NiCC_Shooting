@@ -35,7 +35,7 @@ namespace chara{
 
 namespace sys{
 	//square_t framesize={0,0,420,480};
-	square_t framesize={0,0,640,480};
+	square_t framesize={0,0,1280,720};
 }
 
 using namespace chara;

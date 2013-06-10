@@ -34,7 +34,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 	LoadConfigData();//設定の読み込み
 	if(ConfigData.isFullscreen == true) ChangeWindowMode(false); else ChangeWindowMode(true);
 	srand((unsigned)time(NULL)); //乱数のシード値をランダムに指定
-
+	SetGraphMode(1280,720,32);
 	//------------------- これより下はDxLib初期化済み -------------------
 	if(DxLib_Init()==-1) return -1;
 	SetDrawScreen(DX_SCREEN_BACK); //裏描画設定
