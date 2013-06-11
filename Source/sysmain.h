@@ -26,7 +26,7 @@ public:
 		auto nowCount=GetNowCount();
 		auto interval=nowCount-PastFrameTime;
 		if(interval<SecondPerFrame){//時間あまり
-			WaitTimer(SecondPerFrame-interval-totalLackTime);
+			WaitTimer(SecondPerFrame-interval);
 			nowCount=GetNowCount();
 			totalLackTime+=nowCount-PastFrameTime;
 		}
