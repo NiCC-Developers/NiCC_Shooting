@@ -26,8 +26,9 @@ public:
 		auto nowCount=GetNowCount();
 		auto interval=nowCount-PastFrameTime;
 		if(interval<SecondPerFrame){//時間あまり
-			WaitTimer(SecondPerFrame-(nowCount-PastFrameTime));
-			totalLackTime+=SecondPerFrame;
+			WaitTimer(SecondPerFrame-interval-totalLackTime);
+			nowCount=GetNowCount();
+			totalLackTime+=nowCount-PastFrameTime;
 		}
 		else {//時間不足(orちょうど=0)
 			totalLackTime+=interval;
@@ -38,7 +39,7 @@ public:
 	void Init(){
 		PastFrameTime=GetNowCount();
 	}
-	FpsStabilizer():SecondPerFrame(16.66666667),PastFrameTime(0),drawSkip(0),maxSkipFrame(4),skiped(false){//コンストラクタ
+	FpsStabilizer():SecondPerFrame(16.66666667),PastFrameTime(0),drawSkip(0),maxSkipFrame(4),skiped(false),totalLackTime(0){//コンストラクタ
 	}
 	bool skip(){
 		totalLackTime-=SecondPerFrame;

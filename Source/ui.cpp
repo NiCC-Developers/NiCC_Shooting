@@ -38,7 +38,7 @@ int StartScreen(){
 	FpsStabilizer FpsStabilizer_Start;
 	while(ProcessMessage()==0 && decision==-2){
 		FpsStabilizer_Start.Do();
-		FpsStabilizer_Start.Init();
+		//FpsStabilizer_Start.Init();
 		ClearDrawScreen();
 		GetHitKeyStateAll(key);
 		if(past_push==false){ //メニュー移動
@@ -208,7 +208,7 @@ int PauseGame(){
 	FpsStabilizer FpsStabilizer_Pause;
 	while(ProcessMessage()==0 && decision==-2){
 		FpsStabilizer_Pause.Do();
-		FpsStabilizer_Pause.Init();
+		//FpsStabilizer_Pause.Init();
 		ClearDrawScreen();
 		DrawGraph(0,0,ScreenShot,false);
 
