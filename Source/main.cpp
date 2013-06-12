@@ -93,7 +93,7 @@ int main(){
 	if(!FpsStabilizer_Main.skipedCheck()){
 		//スキップしない
 		Draw();
-
+	}//
 		//ポーズ開始処理
 		static bool past_push=true;
 		if(key[KEY_INPUT_ESCAPE]==1 && past_push==false){
@@ -101,7 +101,7 @@ int main(){
 			if(PauseGame()==-1) return -1;
 		}
 		if(CheckHitKeyAll()==0) past_push=false; else past_push=true;
-	}
+	//}
 }
 //---------------------------------------------
 
