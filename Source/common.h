@@ -19,6 +19,8 @@ extern int JikiBulletDamageList[JIKI_BULLET_KIND];
 #define MD_WEAP_B_WAY3 4
 #define MD_WEAP_C 5
 #define MD_WEAP_D 6
+#define TIMER_SHIELD 0
+#define TIMER_SPJ_CONVERT 1
 
 //弾クラス
 typedef struct{
@@ -61,6 +63,8 @@ typedef struct{
 	int speed;
 	life_t life;
 	int weap;
+	int SpjAmount;
+	int SpeAmount;
 	bool ahantei; //当たり判定表示フラグ
 	bool damage; //ダメージフラグ
 }jiki_t;

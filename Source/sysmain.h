@@ -7,31 +7,42 @@ extern int Cred, Cblack, Cblue, Cgreen, Cwhite;
 extern int Fsmall,Fnorm;
 extern int stage;
 extern int ScreenShot;
-extern void InitTimer();
-extern bool isTimePassed(unsigned int TimerValue_Sec);
 
 //デバッグ用
 void debugtimer(char* before);
 
 //タイマー
 class EasyTimer{
+
+	/*
+	EasyTimer	使いやすいタイマーです。
+				20個までの独立したタイマーを扱えます。defineして、TimerNumに値を渡してください。
+
+	.Init(タイマーの種類)					タイマーのカウントをリセットします
+	.CheckSecond(タイマーの種類, 秒数)		Initから指定時間経過したかチェックします
+	.CheckFrame(タイマーの種類, フレーム数) Initから指定フレーム経過したかチェックします
+	*/
+
 private:
+	int StartSecond[20];
+	int StartFrame;
 
 public:
-	const int PLAYER_SHIELD; //シールド		0
-	const int SPJ_CONVERT; //SPJ変換		1
 
-	int StartTime[20]; //タイマー割り当ての最大数
-
-	EasyTimer():PLAYER_SHIELD(0),SPJ_CONVERT(1){}
 
 	void Init(int TimerNum){
-		StartTime[TimerNum]=GetNowCount();
+		StartSecond[TimerNum]=GetNowCount();
+		StartFrame=frame;
 	}
 
-	bool hasPassed(int TimerNum, unsigned int TimerValue){
+	bool CheckSecond(int TimerNum, unsigned int TimerValue){
 		TimerValue*=1000;
-		if(GetNowCount()-StartTime[TimerNum] >=  TimerValue) return true; else return false;
+		if(GetNowCount()-StartSecond[TimerNum] >=  TimerValue) return true;
+		return false;
+	}
+	bool CheckFrame(int TimerNum, int TimaerValue){
+		if(frame-StartFrame >= TimaerValue) return true;
+		return false;
 	}
 
 };

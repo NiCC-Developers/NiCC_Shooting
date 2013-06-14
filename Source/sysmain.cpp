@@ -165,15 +165,6 @@ double GetFPS(){
 	return result;
 }
 
-//タイマークラスの関数定義
-void c_timer::init(int TimerNum){
-	starttime[TimerNum]=GetNowCount();
-}
-bool c_timer::hasPassed(int TimerNum, unsigned int TimerValue){
-	TimerValue*=1000;
-	if(GetNowCount()-starttime[TimerNum] >=  TimerValue) return true; else return false;
-}
-
 //色定義
 void SetColor(){
 	Cred = GetColor(200,0,0);

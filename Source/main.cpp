@@ -27,7 +27,7 @@ namespace chara{
 	TrackingBullet jikiTrackingBullet[MAX_BULLET_NUM]; //ホーミング弾
 	bullet_t my_bullet[JIKI_BULLET_KIND][MAX_BULLET_NUM];
 	bullet_t jmb[MAX_BULLET_NUM]; //使ってない
-	jiki_t jiki={320,400,4,5,5,0,false,false};
+	jiki_t jiki={320,400,4,5,5,0,5,0,false,false};
 	teki_t boss[20]={
 		{320,30,100,100,false},
 	};
@@ -50,7 +50,8 @@ int TekiDamage(); //敵へのダメージ
 void Draw(); //描画
 void JikiDamage(int DamageValue); //自機へのダメージ
 
-c_timer Timer; //タイマー
+EasyTimer Timer_Main; //タイマー
+SpjControl SpjControl_Main; //SPJとSPEの操作
 
 //メインループ---------------------------------
 int main(){
@@ -65,6 +66,7 @@ int main(){
 
 	Move();
 	JBulletMove();
+	SpjControl_Main.Convert();
 
 	//自機弾ヒット時の処理
 	if(isJikiHit()==true){
@@ -72,7 +74,9 @@ int main(){
 		JikiDamage(1);
 		jiki.damage=true;
 		shield.isDamage=true;
-		Timer.init(MD_TIMER_SHIELD);
+		//Timer.init(MD_TIMER_SHIELD);
+		Timer_Main.Init(TIMER_SHIELD);
+		
 	}else{
 		jiki.damage=false;
 		shield.isDamage=false;
@@ -121,15 +125,17 @@ void Draw(){
 	if(key[KEY_INPUT_Z]==1){
 		DrawGraph(jiki.x-48,jiki.y-48,graph::hdmaru[3],true);
 	}
+	
 
 	//シールド
 	static bool isChargeTime=false;
 	if(isChargeTime==false){
-		Timer.init(MD_TIMER_SHIELD);
+		Timer_Main.Init(TIMER_SHIELD);
+		//Timer.init(MD_TIMER_SHIELD);
 		isChargeTime=true;
 	}
 	
-	if(Timer.hasPassed(MD_TIMER_SHIELD,5)==true){
+	if(Timer_Main.CheckSecond(TIMER_SHIELD,5)==true){
 		if(shield.life.now!=shield.life.max) shield.life.now+=1;
 		isChargeTime=false;
 	}
@@ -232,7 +238,8 @@ void Draw(){
 		DrawGraph(jikiTrackingBullet[i].x-8,jikiTrackingBullet[i].y-8,graph::bullet[2],true);
 	}
 	//GUI
-	DrawBox(framesize.right,0,640,480,GetColor(255,255,255),true);
+	DrawFormatString(framesize.left+5,10,Cwhite,"SPJ: %d",jiki.SpjAmount);
+	DrawFormatString(framesize.left+5,30,Cwhite,"SPE: %d",jiki.SpeAmount);
 	DrawBox(0,0,640*boss[0].life.now/boss[0].life.max,10,Cred,true);
 	DrawFormatString(framesize.right+20,20,Cred,"弾幕STG.Prototype");
 	DrawFormatString(framesize.right+20,100,Cblack,"お前のやる気：%d",jiki.life.now);
@@ -364,8 +371,6 @@ void JBulletMove(){
 	default:
 		break;
 	}
-	DrawFormatString(0,20,Cwhite,"%d",bullet_num[MD_WEAP_A]);
-	DrawFormatString(0,40,Cwhite,"%d",my_bullet[MD_WEAP_A][bullet_num[MD_WEAP_A]].avail);
 
 	//弾移動
 	//WEAP_A
