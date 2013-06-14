@@ -13,6 +13,29 @@ extern bool isTimePassed(unsigned int TimerValue_Sec);
 //デバッグ用
 void debugtimer(char* before);
 
+//タイマー
+class EasyTimer{
+private:
+
+public:
+	const int PLAYER_SHIELD; //シールド		0
+	const int SPJ_CONVERT; //SPJ変換		1
+
+	int StartTime[20]; //タイマー割り当ての最大数
+
+	EasyTimer():PLAYER_SHIELD(0),SPJ_CONVERT(1){}
+
+	void Init(int TimerNum){
+		StartTime[TimerNum]=GetNowCount();
+	}
+
+	bool hasPassed(int TimerNum, unsigned int TimerValue){
+		TimerValue*=1000;
+		if(GetNowCount()-StartTime[TimerNum] >=  TimerValue) return true; else return false;
+	}
+
+};
+
 //FPS安定化クラス
 class FpsStabilizer{
 	float SecondPerFrame;//目標値
@@ -55,7 +78,7 @@ public:
 			return false;
 		}
 	}
-	bool skipedCheck(){
+	bool skipedCheck(){//スキップしたかどうか
 		return skiped;
 	}
 };

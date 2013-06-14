@@ -85,7 +85,6 @@ int main(){
 	int damage=TekiDamage();
 	boss[0].damage=(bool)damage;
 	boss[0].life.now-=damage;
-
 	active_bullets=0;
 	for(int i=0;i<100;i++){
 		if(tb[i].avail==true) active_bullets++;
