@@ -27,7 +27,7 @@ namespace chara{
 	TrackingBullet jikiTrackingBullet[MAX_BULLET_NUM]; //ホーミング弾
 	bullet_t my_bullet[JIKI_BULLET_KIND][MAX_BULLET_NUM];
 	bullet_t jmb[MAX_BULLET_NUM]; //使ってない
-	jiki_t jiki={320,400,4,5,5,0,5,0,false,false};
+	jiki_t jiki={320,400,4,5,5,0,5,0,0,false,false};
 	teki_t boss[20]={
 		{320,30,100,100,false},
 	};
@@ -46,7 +46,7 @@ void Move(); //自機と敵の移動
 void TBulletMove(); //敵弾の移動
 void JBulletMove(); //自機弾の移動
 bool isJikiHit(); //自機の当たり判定
-int TekiDamage(); //敵へのダメージ
+float TekiDamage(); //敵へのダメージ
 void Draw(); //描画
 void JikiDamage(int DamageValue); //自機へのダメージ
 
@@ -63,6 +63,8 @@ int main(){
 		ShowNobel();
 		talkphase=false;
 	}
+
+	if(key[KEY_INPUT_1]) jiki.SpeOutput=1;
 
 	Move();
 	JBulletMove();
@@ -86,7 +88,7 @@ int main(){
 	//残りライフチェック
 	if(jiki.life.now <=0) return 1;
 	if(boss[0].life.now<=0) return 2;
-	int damage=TekiDamage();
+	float damage=TekiDamage();
 	boss[0].damage=(bool)damage;
 	boss[0].life.now-=damage;
 	active_bullets=0;
@@ -240,6 +242,7 @@ void Draw(){
 	//GUI
 	DrawFormatString(framesize.left+5,10,Cwhite,"SPJ: %d",jiki.SpjAmount);
 	DrawFormatString(framesize.left+5,30,Cwhite,"SPE: %d",jiki.SpeAmount);
+	DrawFormatString(framesize.left+5,50,Cwhite,"OUT: %d",jiki.SpeOutput);
 	DrawBox(0,0,640*boss[0].life.now/boss[0].life.max,10,Cred,true);
 	DrawFormatString(framesize.right+20,20,Cred,"弾幕STG.Prototype");
 	DrawFormatString(framesize.right+20,100,Cblack,"お前のやる気：%d",jiki.life.now);
@@ -427,7 +430,7 @@ bool isJikiHit(){
 	return result;
 }
 
-int TekiDamage(){
+float TekiDamage(){
 	switch(stage){
 	case 1:
 		return TekiHit_1();
@@ -533,3 +536,7 @@ void TrackingBullet::TekiMove(){
 	return;
 }
 
+float PlayerDamageValue(int weap){
+	const int SPE_MULTI=3;
+	if(jiki.SpeOutput==1) return JikiBulletDamageList[weap]*SPE_MULTI; else return JikiBulletDamageList[weap];
+}

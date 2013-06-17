@@ -2,7 +2,7 @@
 extern void TekiMove_1(int *x,int *y);
 extern void TekiDraw_1(int x,int y,bool flag);
 extern void TekiBullet_1();
-extern int TekiHit_1();
+extern float TekiHit_1();
 extern void ShowNobel_1();
 pos searchNearTeki_1(pos bulletPos);
 

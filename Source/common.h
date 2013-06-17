@@ -45,8 +45,8 @@ struct pos{
 
 //命クラス
 typedef struct{
-	int now;
-	int max;
+	float now;
+	float max;
 }life_t;
 
 //四角形クラス
@@ -65,6 +65,7 @@ typedef struct{
 	int weap;
 	int SpjAmount;
 	int SpeAmount;
+	int SpeOutput;
 	bool ahantei; //当たり判定表示フラグ
 	bool damage; //ダメージフラグ
 }jiki_t;

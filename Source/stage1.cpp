@@ -31,15 +31,16 @@ void TekiDraw_1(int x,int y,bool flag){
 
 }
 
-int TekiHit_1(){
-	int result;
+float TekiHit_1(){
+	const float SPE_MULTI=5;
+	float result;
 	result=0;
 	for(int weap=0; weap<=9; weap++){
 		if(weap==MD_WEAP_C){
 			for(int i=0;i<MAX_BULLET_NUM;i++){
 				//判定は仮
 				if(jikiTrackingBullet[i].avail&&boss[0].x-30<jikiTrackingBullet[i].x && jikiTrackingBullet[i].x<boss[0].x+30 && boss[0].y-10<jikiTrackingBullet[i].y && jikiTrackingBullet[i].y<boss[0].y+10){
-					result+=JikiBulletDamageList[weap];
+					result=PlayerDamageValue(weap);
 					jikiTrackingBullet[i].avail=false;
 				}
 			}
@@ -47,7 +48,7 @@ int TekiHit_1(){
 		else{
 			for(int i=0;i<=199;i++){
 				if(my_bullet[weap][i].avail&&boss[0].x-30<my_bullet[weap][i].x && my_bullet[weap][i].x<boss[0].x+30 && boss[0].y-10<my_bullet[weap][i].y && my_bullet[weap][i].y<boss[0].y+10){
-					result+=JikiBulletDamageList[weap];
+					result=PlayerDamageValue(weap);
 					my_bullet[weap][i].avail=false;
 				}
 			}

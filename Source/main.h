@@ -2,6 +2,7 @@
 
 #include "includer.h"
 
+extern float PlayerDamageValue(int weap);
 
 //関数
 int main();
@@ -13,6 +14,7 @@ private:
 	void Init(){
 		StartFrame=frame;
 	}
+	EasyTimer Test;
 	bool CheckFrame(int TimaerValue){
 		if(frame-StartFrame >= TimaerValue) return true;
 		return false;
