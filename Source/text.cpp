@@ -80,8 +80,8 @@ void SetDrawChara(int num, int side){
 
 void WriteNobelString(char* str){
 	int line=0;
-	int defx=60;
-	int defy=360;
+	int defx=450;
+	int defy=650;
 	
 	FpsStabilizer FpsStabilizer_Nobel;
 	for(int i=0; str[i]!='\0' && CheckHitKey(KEY_INPUT_LCONTROL)==0 ; i++){

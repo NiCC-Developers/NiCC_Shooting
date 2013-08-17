@@ -8,6 +8,7 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
+#include <queue>
 
 #include "common.h"
 

@@ -19,8 +19,9 @@ extern int JikiBulletDamageList[JIKI_BULLET_KIND];
 #define MD_WEAP_B_WAY3 4
 #define MD_WEAP_C 5
 #define MD_WEAP_D 6
-#define TIMER_SHIELD 0
-#define TIMER_SPJ_CONVERT 1
+#define TIMER_WORLD 0
+#define TIMER_SHIELD 1
+#define TIMER_SPJ_CONVERT 2
 
 //弾クラス
 typedef struct{

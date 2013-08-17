@@ -13,12 +13,13 @@ bool talkphase=true; //テキストダイアログが出るか
 int JikiBulletDamageList[JIKI_BULLET_KIND]={3,1,1,1,1,2}; //各弾のダメージ値
 float TekiMaxLotate=PI/180*1;
 float TekiTrackingBulletSpeed=4;
+meteo Meteo[100];
 
 typedef struct{
 	life_t life;
 	bool isDamage;
 }shield_t;
-shield_t shield={4,4,false};
+shield_t shield={5,5,false};
 
 namespace chara{
 	bullet_t tb[MAX_BULLET_NUM]; //敵弾
@@ -27,7 +28,7 @@ namespace chara{
 	TrackingBullet jikiTrackingBullet[MAX_BULLET_NUM]; //ホーミング弾
 	bullet_t my_bullet[JIKI_BULLET_KIND][MAX_BULLET_NUM];
 	bullet_t jmb[MAX_BULLET_NUM]; //使ってない
-	jiki_t jiki={320,400,4,5,5,0,5,0,0,false,false};
+	jiki_t jiki={320,400,4,5,5,0,6,0,0,false,false};
 	teki_t boss[20]={
 		{320,30,100,100,false},
 	};
@@ -37,6 +38,14 @@ namespace sys{
 	//square_t framesize={0,0,420,480};
 	square_t framesize={0,0,1280,720};
 }
+
+const int ENM_MAX_LINE=10;
+const int ENM_MAX_TIME=10*60*60*5;
+CommonEnemy ET1[ENM_MAX_LINE][ENM_MAX_TIME]; //敵さん！
+
+CommonEnemy ET2[ENM_MAX_LINE][ENM_MAX_TIME]; //敵さん（B）！
+int TimeLine[ENM_MAX_LINE][ENM_MAX_TIME]={0}; //時間-位置を表す、敵を出さない場合は0
+
 
 using namespace chara;
 using namespace sys;
@@ -49,14 +58,38 @@ bool isJikiHit(); //自機の当たり判定
 float TekiDamage(); //敵へのダメージ
 void Draw(); //描画
 void JikiDamage(int DamageValue); //自機へのダメージ
+void DropEnemy();
+void MoveEnemy();
+void DrawEnemy();
+void HitEnemy();
+void DrawBackground();
 
 EasyTimer Timer_Main; //タイマー
 SpjControl SpjControl_Main; //SPJとSPEの操作
+TimeControl TC_Main;
 
 //メインループ---------------------------------
 int main(){
+	//TimeLine[0][1]=1;
+	//TimeLine[1][2]=1;
+	//TimeLine[2][3]=1;
+	//TimeLine[3][4]=1;
+	//TimeLine[4][5]=1;
+	//TimeLine[5][6]=1;
+	//TimeLine[6][7]=1;
+	//TimeLine[7][8]=1;
+	//TimeLine[8][9]=1;
+	//TimeLine[9][10]=1;
+	TC_Main.Start();
+	TC_Main.Add();
+
+	DropEnemy();
+	MoveEnemy();
+	HitEnemy();
+
 	if(!FpsStabilizer_Main.skipedCheck()){
-		DrawGraph(0,0,graph::back[0],true); //背景
+
+		//DrawGraph(0,0,graph::back[0],true); //背景
 	}
 	//ノベルモードに入るかどうか
 	if(talkphase==true){
@@ -64,11 +97,14 @@ int main(){
 		talkphase=false;
 	}
 
-	if(key[KEY_INPUT_1]) jiki.SpeOutput=1;
+	if(key[KEY_INPUT_S]) jiki.SpeOutput=1;
+	if(key[KEY_INPUT_A]) jiki.SpeOutput=0;
+	if(key[KEY_INPUT_3]) jiki.SpeOutput=3;
 
 	Move();
 	JBulletMove();
 	SpjControl_Main.Convert();
+	SpjControl_Main.Use();
 
 	//自機弾ヒット時の処理
 	if(isJikiHit()==true){
@@ -97,7 +133,9 @@ int main(){
 	}
 	if(!FpsStabilizer_Main.skipedCheck()){
 		//スキップしない
+		DrawBackground();
 		Draw();
+		DrawEnemy();
 	}//
 		//ポーズ開始処理
 		static bool past_push=true;
@@ -137,12 +175,12 @@ void Draw(){
 		isChargeTime=true;
 	}
 	
-	if(Timer_Main.CheckSecond(TIMER_SHIELD,5)==true){
+	if(Timer_Main.CheckSecond(TIMER_SHIELD,2)==true){
 		if(shield.life.now!=shield.life.max) shield.life.now+=1;
 		isChargeTime=false;
 	}
 
-	if(shield.life.now > 0){
+	if(shield.life.now > 0 && SpjControl_Main.isSLDReady){
 		if(shield.isDamage==false){
 			DrawCircle(jiki.x,jiki.y,70,GetColor(255-255*(float)shield.life.now/(float)shield.life.max,0,0+255*(float)shield.life.now/(float)shield.life.max),false);
 		} else {
@@ -161,63 +199,68 @@ void Draw(){
 
 	//武器切り替え
 	DrawFormatString(jiki.x-40,jiki.y+40,Cwhite,"WEAP:%d",jiki.weap);
-
+	
+	static bool past_pushed=1;
 	if(key[KEY_INPUT_X]==1){
-		static bool past_pushed=1;
+		if(!past_pushed){
+			jiki.weap++;
+			jiki.weap%=3;
+			past_pushed=true;
+		}
 	} else {
-
+		past_pushed=false;
 	}
 
-	if(key[KEY_INPUT_LCONTROL]==1){
-		static bool past_pushed;
-		static double pangle=0;
-		static int rotate_flag; //0=NO 1=LEFT 2=RIGHT
+	//if(key[KEY_INPUT_LCONTROL]==1){
+	//	static bool past_pushed;
+	//	static double pangle=0;
+	//	static int rotate_flag; //0=NO 1=LEFT 2=RIGHT
 
-		if(key[KEY_INPUT_LEFT]==1){
-			if(past_pushed==false){
-				past_pushed=true;
-				jiki.weap+=1;
-				jiki.weap=jiki.weap%4;
-				rotate_flag=1;
-			}
-		} else if(key[KEY_INPUT_RIGHT]==1){
-			if(past_pushed==false){
-				past_pushed=true;
-				jiki.weap-=1;
-				if(jiki.weap<0) jiki.weap=3;
-				jiki.weap=jiki.weap%4;
-				rotate_flag=2;
-			}
-		} else {
-			past_pushed=false;
-		}
+	//	if(key[KEY_INPUT_LEFT]==1){
+	//		if(past_pushed==false){
+	//			past_pushed=true;
+	//			jiki.weap+=1;
+	//			jiki.weap=jiki.weap%4;
+	//			rotate_flag=1;
+	//		}
+	//	} else if(key[KEY_INPUT_RIGHT]==1){
+	//		if(past_pushed==false){
+	//			past_pushed=true;
+	//			jiki.weap-=1;
+	//			if(jiki.weap<0) jiki.weap=3;
+	//			jiki.weap=jiki.weap%4;
+	//			rotate_flag=2;
+	//		}
+	//	} else {
+	//		past_pushed=false;
+	//	}
 
-		if(rotate_flag==0){
-			DrawWeaponCircle(jiki.x,jiki.y,jiki.weap*90,jiki.weap);
-		}
+	//	if(rotate_flag==0){
+	//		DrawWeaponCircle(jiki.x,jiki.y,jiki.weap*90,jiki.weap);
+	//	}
 
-		if(rotate_flag==1){
-			if(pangle<=90){
-				DrawWeaponCircle(jiki.x,jiki.y,(jiki.weap-1)*90+pangle,jiki.weap);
-				pangle+=10;
-			}
-			if(pangle==90){
-				pangle=0;
-				rotate_flag=0;
-			}
-		}
+	//	if(rotate_flag==1){
+	//		if(pangle<=90){
+	//			DrawWeaponCircle(jiki.x,jiki.y,(jiki.weap-1)*90+pangle,jiki.weap);
+	//			pangle+=10;
+	//		}
+	//		if(pangle==90){
+	//			pangle=0;
+	//			rotate_flag=0;
+	//		}
+	//	}
 
-		if(rotate_flag==2){
-			if(pangle>=-90){
-				DrawWeaponCircle(jiki.x,jiki.y,(jiki.weap+1)*90+pangle,jiki.weap);
-				pangle-=10;
-			}
-			if(pangle==-90){
-				pangle=0;
-				rotate_flag=0;
-			}
-		}
-	}
+	//	if(rotate_flag==2){
+	//		if(pangle>=-90){
+	//			DrawWeaponCircle(jiki.x,jiki.y,(jiki.weap+1)*90+pangle,jiki.weap);
+	//			pangle-=10;
+	//		}
+	//		if(pangle==-90){
+	//			pangle=0;
+	//			rotate_flag=0;
+	//		}
+	//	}
+	//}
 
 	for(int i=0;i<200;i++){
 		if(tb[i].avail==true){
@@ -240,52 +283,76 @@ void Draw(){
 		DrawGraph(jikiTrackingBullet[i].x-8,jikiTrackingBullet[i].y-8,graph::bullet[2],true);
 	}
 	//GUI
+	DrawGraph(0,0,graph::ui_main,true); //メイン
+	DrawGraph(0,0,graph::ui_hidariue,true); //左上
+	DrawGraph(0,0,graph::ui_weap[jiki.weap+1],true); //武器
+	DrawGraph(0,0,graph::ui_spj[jiki.SpjAmount],true); //SPJ残り
+	{ //変換アニメーションとメーター
+		static int i;
+		if(SpjControl_Main.isConverting) i=frame%100;
+		if(0<=i && i<25) DrawGraph(0,0,graph::ui_spj_convert[3],true);
+		if(25<=i && i<50) DrawGraph(0,0,graph::ui_spj_convert[2],true);
+		if(50<=i && i<75) DrawGraph(0,0,graph::ui_spj_convert[1],true);
+		if(75<=i && i<100) DrawGraph(0,0,graph::ui_spj_convert[0],true);
+		if(SpjControl_Main.isConverting) DrawCircleGauge(262,667,(100-(float)(frame-SpjControl_Main.StartFrame)/300*100),graph::ui_spj_time);
+	}
+
+	DrawCircleGauge(896,614,(float)jiki.life.now/jiki.life.max*100,graph::ui_weap_meter); //体力メーター
+	DrawGraph(0,0,graph::ui_spe_out[jiki.SpeOutput],true); //spe出力先
+	DrawGraph(0,0,graph::ui_spe[jiki.SpeAmount],true); //spe残り
+	DrawCircleGauge(910,620,SpjControl_Main.SLD,graph::ui_spe_meter); //SPEメーター、38%で最大 25%で最小
+	
+	{
+		static bool isLocked;
+		if(!SpjControl_Main.isSPEReady){
+
+			static int SPEPowerX;
+			if(!isLocked){
+				SPEPowerX=320;
+				shield.life.now=shield.life.max;
+				isLocked=true;
+			}
+
+			if(SPEPowerX<807){
+					SPEPowerX+=40;
+			}
+			DrawBox(320,762,SPEPowerX,763,Cgreen,true);
+		} else {
+			isLocked=false;
+		}
+
+	}
 	DrawFormatString(framesize.left+5,10,Cwhite,"SPJ: %d",jiki.SpjAmount);
 	DrawFormatString(framesize.left+5,30,Cwhite,"SPE: %d",jiki.SpeAmount);
 	DrawFormatString(framesize.left+5,50,Cwhite,"OUT: %d",jiki.SpeOutput);
+	DrawFormatString(framesize.left+5,70,Cwhite,"TIME: %d",TC_Main.LocalSecond);
 	DrawBox(0,0,640*boss[0].life.now/boss[0].life.max,10,Cred,true);
-	DrawFormatString(framesize.right+20,20,Cred,"弾幕STG.Prototype");
-	DrawFormatString(framesize.right+20,100,Cblack,"お前のやる気：%d",jiki.life.now);
-	DrawFormatString(framesize.right+20,120,Cblack,"ボム：使えません");
-	DrawFormatString(framesize.right+20,140,Cblack,"Score：すごい");
-	DrawFormatString(framesize.right+20,160,Cblack,"HiScore：知らないです");
-
-	DrawFormatString(framesize.right+20,180,Cblack,"座標：(%d,%d)",jiki.x,jiki.y);
-	DrawFormatString(framesize.right+20,200,Cblack,"アクティブな弾:%d/100",active_bullets);
-
-	DrawFormatString(framesize.right+20,240,Cblue,"移動：方向ｷｰ(ｼﾌﾄでｽﾛｰ)");
-	DrawFormatString(framesize.right+20,260,Cblue,"ショット：Z");
-	DrawFormatString(framesize.right+20,280,Cblue,"やめる：ESC");
-
-	DrawFormatString(framesize.right+20,300,Cblack,"敵のやる気：%d",boss[0].life.now);
-	DrawFormatString(framesize.right+20,340,Cred,"frame：%d",frame);
 	
 }
 
 void Move(){
 	//自機移動
 
-	if(key[KEY_INPUT_LCONTROL]==0){
-		if(key[KEY_INPUT_LSHIFT]==1){
-			jiki.speed=3;
-			jiki.ahantei=true;
-		}else{
-			jiki.speed=6;
-			jiki.ahantei=false;
-		}
-		if(key[KEY_INPUT_LEFT]==1){
-			jiki.x-=jiki.speed;
-		}
-		if(key[KEY_INPUT_RIGHT]==1){
-			jiki.x+=jiki.speed;
-		}
-		if(key[KEY_INPUT_UP]==1){
-			jiki.y-=jiki.speed;
-		}
-		if(key[KEY_INPUT_DOWN]==1){
-			jiki.y+=jiki.speed;
-		}
+	if(key[KEY_INPUT_LSHIFT]==1){
+		jiki.speed=3;
+		jiki.ahantei=true;
+	}else{
+		jiki.speed=6;
+		jiki.ahantei=false;
 	}
+	if(key[KEY_INPUT_LEFT]==1){
+		jiki.x-=jiki.speed;
+	}
+	if(key[KEY_INPUT_RIGHT]==1){
+		jiki.x+=jiki.speed;
+	}
+	if(key[KEY_INPUT_UP]==1){
+		jiki.y-=jiki.speed;
+	}
+	if(key[KEY_INPUT_DOWN]==1){
+		jiki.y+=jiki.speed;
+	}
+
 	
 	//敵移動
 	switch(stage){
@@ -451,6 +518,7 @@ void var_init(){
 	jiki.ahantei=false; /*当たり判定表示フラグ*/
 	jiki.life.now=jiki.life.max;
 	shield.life.now=shield.life.max;
+	jiki.SpjAmount=6;
 	boss[0].life.now=boss[0].life.max;
 
 	for(int i=0;i<MAX_BULLET_NUM;i++){
@@ -472,11 +540,15 @@ void var_init(){
 
 void JikiDamage(int damage){
 
-	if(shield.life.now-damage <= 0){
-		jiki.life.now-=damage-shield.life.now;
-		shield.life.now=0;
+	if(SpjControl_Main.isSLDReady){
+		if(shield.life.now-damage <= 0){
+			jiki.life.now-=damage-shield.life.now;
+			shield.life.now=0;
+		} else {
+			shield.life.now-=damage;
+		}
 	} else {
-		shield.life.now-=damage;
+		jiki.life.now-=damage;
 	}
 }
 pos searchNearTeki(pos bulletPos){
@@ -539,4 +611,95 @@ void TrackingBullet::TekiMove(){
 float PlayerDamageValue(int weap){
 	const int SPE_MULTI=3;
 	if(jiki.SpeOutput==1) return JikiBulletDamageList[weap]*SPE_MULTI; else return JikiBulletDamageList[weap];
+}
+
+int EnemyRingBuf[200];
+void DropEnemy(){
+	static int Counter;
+	for(int n=0; n<ENM_MAX_LINE; n++){
+		
+		switch(TimeLine[n][TC_Main.LocalSecond]){
+		case 1:
+			if(ET1[n][TC_Main.LocalSecond].isDead){
+				ET1[n][TC_Main.LocalSecond].x=1024*n/(ENM_MAX_LINE-1);
+				ET1[n][TC_Main.LocalSecond].y=-250;
+				ET1[n][TC_Main.LocalSecond].isDead=false;
+				EnemyRingBuf[Counter%200]=n;
+				EnemyRingBuf[Counter%200+1]=TC_Main.LocalSecond;
+				Counter+=2;
+			}
+			break;
+		default:
+			break;
+		}
+		
+	}
+}
+
+void MoveEnemy(){
+	for(int i=0; i<ENM_MAX_LINE; i++){
+		for(int j=0; j<ENM_MAX_TIME; j++){
+			switch(TimeLine[i][j]){
+			case 1:
+				if(!ET1[i][j].isDead){
+					ET1[i][j].Move();
+				}
+
+			}
+		}
+	}
+
+}
+
+void HitEnemy(){
+	for(int n=0; n<=198; n+=2){
+		for(int k=0; k<MAX_BULLET_NUM; k++){
+			if(ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].isDead==false){
+				if(my_bullet[MD_WEAP_A][k].avail==true && ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].x-40<my_bullet[MD_WEAP_A][k].x && my_bullet[MD_WEAP_A][k].x<ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].x+40 && ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].y-50<my_bullet[MD_WEAP_A][k].y && my_bullet[MD_WEAP_A][k].y<ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].y+50){
+					ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].x+=2500;
+				}
+			}
+		}
+	}
+}
+
+void DrawEnemy(){
+	for(int n=0; n<=198; n+=2){
+		ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].Draw();
+	}
+}
+
+void DrawBackground(){
+
+	//----背景----
+	static int LOne=-768;
+	static int LTwo=-768;
+	DrawGraph(0,LOne,graph::back[0],true);
+	DrawGraph(0,LTwo,graph::back[1],true);
+	if(LOne>0) LOne=-768; else if(frame%3==0) LOne++;
+	if(LTwo>0) LTwo=-768;
+	else if(frame%2==0) LTwo++;
+
+	//----隕石部分----
+	static int Counter;
+	if(frame%200==GetRand(199)){
+		Meteo[Counter].avail=true;
+		Meteo[Counter].x=(float)1024*GetRand(10)/10;
+		Meteo[Counter].y=-200;
+		Meteo[Counter].num=GetRand(2);
+		Counter++;
+		Counter%=100;
+	}
+
+	for(int i=0; i<100; i++){
+		if(Meteo[i].y>800){
+			Meteo[i].avail=false;
+		}
+		
+		if(Meteo[i].avail){
+			Meteo[i].y+=2;
+			DrawGraph(Meteo[i].x,Meteo[i].y,graph::bg_meteo[Meteo[i].num],true);
+		}
+	}
+	//----隕石ここまで----
 }

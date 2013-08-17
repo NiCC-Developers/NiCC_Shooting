@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NiCC_Shooting", "NiCC_Shooting.vcxproj", "{BD600727-D99E-4E61-8DEF-19181C808E5E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EnemyEditor", "..\EnemyEditor\EnemyEditor.vcxproj", "{C4A867FF-214B-46F2-AA88-4DB5AEF30F73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{BD600727-D99E-4E61-8DEF-19181C808E5E}.Debug|Win32.Build.0 = Debug|Win32
 		{BD600727-D99E-4E61-8DEF-19181C808E5E}.Release|Win32.ActiveCfg = Release|Win32
 		{BD600727-D99E-4E61-8DEF-19181C808E5E}.Release|Win32.Build.0 = Release|Win32
+		{C4A867FF-214B-46F2-AA88-4DB5AEF30F73}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C4A867FF-214B-46F2-AA88-4DB5AEF30F73}.Debug|Win32.Build.0 = Debug|Win32
+		{C4A867FF-214B-46F2-AA88-4DB5AEF30F73}.Release|Win32.ActiveCfg = Release|Win32
+		{C4A867FF-214B-46F2-AA88-4DB5AEF30F73}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

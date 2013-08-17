@@ -32,6 +32,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 
 	//-------------------初期化ここから-------------------
 	LoadConfigData();//設定の読み込み
+	LoadMapData();
 	if(ConfigData.isFullscreen == true) ChangeWindowMode(false); else ChangeWindowMode(true);
 	srand((unsigned)time(NULL)); //乱数のシード値をランダムに指定
 	SetGraphMode(1024,768,32);
@@ -81,8 +82,7 @@ title:
 
 	//メインループ
 start:
-
-
+	PlayMusic("res\\bgm\\battle.wav",DX_PLAYTYPE_LOOP);
 	while(1){
 		//FpsStabilizer_Main.Init();
 		cpu_fps=GetFPS_CPU();
