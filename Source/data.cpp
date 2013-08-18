@@ -5,7 +5,9 @@ namespace graph{
 	int chara[50];
 	int hdmaru[10];
 	int compterve;
+	int compterve_d;
 	int en_c[10];
+	int en_c_d[10];
 	int ui_main;
 	int ui_hidariue;
 	int ui_weap[4];
@@ -17,13 +19,25 @@ namespace graph{
 	int ui_spe[7];
 	int ui_spe_meter;
 	int bg_meteo[3];
+	int bg_gameover;
+	int bg_clear;
 	int textbox;
 	int pause_back;
 	int config_back;
 	int back[10];
 	int bullet[10];
+	int enm_bullet1;
 }
+namespace music{
+	int ms_battle;
+	int ms_op;
+	int ms_gameover;
+	int ms_result;
+}
+
 using namespace graph;
+using namespace music;
+
 
 
 //画像関係ロード
@@ -68,6 +82,8 @@ void LoadGraphics(){
 	bg_meteo[0]=LoadGraph("res\\background\\bg_meteo_1.png");
 	bg_meteo[1]=LoadGraph("res\\background\\bg_meteo_2.png");
 	bg_meteo[2]=LoadGraph("res\\background\\bg_meteo_3.png");
+	bg_gameover=LoadGraph("res\\background\\gameover.png");
+	bg_clear=LoadGraph("res\\background\\clear.png");
 
 	//craft
 	hdmaru[0]=LoadGraph("res\\craft\\super_hodakamaru_blue3.png");
@@ -75,8 +91,9 @@ void LoadGraphics(){
 	hdmaru[2]=LoadGraph("res\\craft\\super_hodakamaru_blue3.png");
 	hdmaru[3]=LoadGraph("res\\craft\\super_hodakamaru_blue2.png");
 	compterve=LoadGraph("res\\craft\\COM_P_TERVE_03.png");
+	compterve_d=LoadGraph("res\\craft\\COM_P_TERVE_03_d.png");
 	en_c[1]=LoadGraph("res\\craft\\en_c2.png");
-
+	en_c_d[1]=LoadGraph("res\\craft\\en_c2_d.png");
 	//character
 	graph::chara[0]=LoadGraph("res\\chara\\renkon.png");
 	graph::chara[1]=LoadGraph("res\\chara\\renkon2.png");
@@ -85,8 +102,15 @@ void LoadGraphics(){
 	//bullet
 	bullet[0]=LoadGraph("res\\bullet\\ballet1.png");
 	bullet[1]=LoadGraph("res\\bullet\\ballet2.png");
+	enm_bullet1=LoadGraph("res\\bullet\\enm_bullet1.png");
 	//仮のデータ
 	bullet[2]=bullet[1];
+
+	//音楽ロード
+	ms_battle=LoadSoundMem("res\\bgm\\battle.wav");
+	ms_op=LoadSoundMem("res\\bgm\\op.mp3");
+	ms_gameover=LoadSoundMem("res\\bgm\\gameover.wav");
+	ms_result=LoadSoundMem("res\\bgm\\result.wav");
 }
 
 //セーブデータ
@@ -103,6 +127,29 @@ void LoadConfigData(){
 	}
 
 }
+
+void LoadSaveData(){
+	FILE *fp;
+
+	if((fp = fopen("SaveData.dat","rb")) == NULL) {
+		fp = fopen("SaveData.dat","wb");
+		fwrite(&HighScore, sizeof(HighScore), 1, fp);
+		fclose(fp);
+	} else {
+		fread(&HighScore, sizeof(HighScore), 1, fp);
+		fclose(fp);
+	}
+
+}
+
+void SaveSaveData(){
+	FILE *fp;
+	fp=fopen("SaveData.dat","wb");
+	fwrite(&HighScore, sizeof(HighScore), 1, fp);
+	fclose(fp);
+}
+
+
 
 //マップデータ
 void LoadMapData(){

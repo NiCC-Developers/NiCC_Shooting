@@ -1,11 +1,14 @@
 ﻿#pragma once
 
 #include "includer.h"
-
+namespace chara{
+	extern bool isLaserActive;
+};
 extern float PlayerDamageValue(int weap);
 extern EasyTimer Timer_Main;
-
 extern int TimeLine[10][10*60*60*5];
+extern int ClearTime;
+extern int Result;
 
 //関数
 int main();
@@ -33,6 +36,7 @@ int StartFrame;
 	bool isSLDReady;
 	bool isATKReady;
 	int SLD;
+	int ATK;
 
 	SpjControl():isConverting(0),isSPEReady(true){
 	}
@@ -48,7 +52,7 @@ int StartFrame;
 				SpjControl::Init();
 				isConverting=true;
 			}
-			if(SpjControl::CheckFrame(300)){
+			if(SpjControl::CheckFrame(100)){
 				chara::jiki.SpjAmount--;
 				chara::jiki.SpeAmount++;
 				isConverting=false;
@@ -63,9 +67,12 @@ int StartFrame;
 			switch(chara::jiki.SpeOutput){
 			case 0:
 				isATKReady=true;
+				ATK=38;
+				break;
 			case 1:
 				isSLDReady=true;
 				SLD=38;
+				break;
 			}
 		}
 
@@ -77,7 +84,14 @@ int StartFrame;
 			}
 			if(frame%30==0) SLD--;
 		}
+		if(isATKReady){
+			if(ATK<25){
+				isSPEReady=true;
+				isATKReady=false;
 
+			}
+			if(frame%30==0) ATK--;			
+		}
 	}
 
 };
@@ -112,23 +126,22 @@ public:
 
 };
 
-class CommonEnemy{
+class CommonEnemyTypeA{
 
 public:
-	CommonEnemy():isDead(true){}
+	CommonEnemyTypeA():isDead(true),Life(250){}
 	bool isDead;
-	int Ghandle;
-	float x,y, Angle;
-	float Life, Def, Pwr;
+	bool isDamaged;
+	float x,y;
+	float Life;
 
 	void Move(){
 			y+=3;
 	}
 	void Draw(){
-			if(!isDead) DrawGraph(x,y,graph::en_c[1],true);
+			if(!isDead) DrawGraph(x-71,y,graph::en_c[1],true);
 	}
-	void Attack();
-	void Hurt();
+
 };
 
 	class meteo{

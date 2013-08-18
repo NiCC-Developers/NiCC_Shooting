@@ -24,15 +24,16 @@ int StartScreen(){
 	int sel=0; //現在選択している項目
 	int decision=-2; //決定した項目
 	int title_h=LoadGraph("res\\gui\\title.png"); //タイトル
+	int back=LoadGraph("res\\background\\title_FailOver.png");
 	bool past_push=false; //ボタン押しっぱなし回避
-	int ELEM_NUM=3; //メニュー要素数
-	int STR_LINE=400; //メニューX座標
+	int ELEM_NUM=2; //メニュー要素数
+	int STR_LINE=100; //メニューX座標
 
 	//メニュー内容
 	static menuelm menu[]={ 
-		{"Start",Cwhite,STR_LINE,200,},
-		{"Config",Cwhite,STR_LINE,250,},
-		{"Exit",Cwhite,STR_LINE,300,},
+		{"Start",Cwhite,STR_LINE,500,},
+		//{"Config",Cwhite,STR_LINE,550,},
+		{"Exit",Cwhite,STR_LINE,600,},
 	};
 	
 	FpsStabilizer FpsStabilizer_Start;
@@ -67,10 +68,9 @@ int StartScreen(){
 					if(STR_LINE <= menu[i].x) menu[i].x=STR_LINE;
 				}
 			}
-			
-			DrawGraph(20,40,title_h,true);
-			DrawStringToHandle(270,90,"(C) Nicc",Cwhite,Fsmall);
+			DrawGraph(0,0,back,true);
 			DrawStringToHandle(10,460,"Press arrow key to move, Z key to select ",Cwhite,Fnorm);
+			DrawFormatString(875,0,Cwhite,"HighScore:%dsec",HighScore);
 			ScreenFlip();
 	}
 	DeleteGraph(title_h);
@@ -111,15 +111,13 @@ int ConfigScreen(){
 		ClearDrawScreen();
 		DrawGraph(0,0,ScreenShot,false);
 		DrawGraph(100,100,graph::config_back,true);
-		//DrawBox(100,100,540,380,Cblack,true);
-		//DrawBox(100,100,540,380,Cgreen,false);
 		GetHitKeyStateAll(key);
 
 		//----メニュー内移動----
 		//いっぱい動かしたいものはここに
 		if(sel == CFG_BGM) {
-			if(key[KEY_INPUT_LEFT]==1) tmpConfigData.bgmvol--;
-			if(key[KEY_INPUT_RIGHT]==1) tmpConfigData.bgmvol++;
+			if(key[KEY_INPUT_LEFT]==1 && tmpConfigData.bgmvol>0) tmpConfigData.bgmvol--;
+			if(key[KEY_INPUT_RIGHT]==1 && tmpConfigData.bgmvol<100) tmpConfigData.bgmvol++;
 		}
 		if(sel == CFG_SE){
 			if(key[KEY_INPUT_LEFT]==1) tmpConfigData.sevol--;

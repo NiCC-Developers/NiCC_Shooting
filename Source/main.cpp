@@ -10,9 +10,12 @@ sysmain.cppのWinMain関数から呼び出されます。
 
 int active_bullets; //有効な弾
 bool talkphase=true; //テキストダイアログが出るか
-int JikiBulletDamageList[JIKI_BULLET_KIND]={3,1,1,1,1,2}; //各弾のダメージ値
+float JikiBulletDamageList[JIKI_BULLET_KIND]={15,4,4,4,4,0.01}; //各弾のダメージ値
 float TekiMaxLotate=PI/180*1;
 float TekiTrackingBulletSpeed=4;
+int buf[200];
+int ClearTime;
+int Result;
 meteo Meteo[100];
 
 typedef struct{
@@ -24,26 +27,29 @@ shield_t shield={5,5,false};
 namespace chara{
 	bullet_t tb[MAX_BULLET_NUM]; //敵弾
 	bullet_t tmb[MAX_BULLET_NUM]; //弾移動
+	bullet_t tbzA[MAX_BULLET_NUM];
+	bullet_t tmbzA[MAX_BULLET_NUM];
 	bullet_t jb[MAX_BULLET_NUM]; //自機弾
 	TrackingBullet jikiTrackingBullet[MAX_BULLET_NUM]; //ホーミング弾
 	bullet_t my_bullet[JIKI_BULLET_KIND][MAX_BULLET_NUM];
+	bool isLaserActive;
 	bullet_t jmb[MAX_BULLET_NUM]; //使ってない
-	jiki_t jiki={320,400,4,5,5,0,6,0,0,false,false};
+	jiki_t jiki={320,400,4,15,15,0,0,2,0,false,false};
 	teki_t boss[20]={
-		{320,30,100,100,false},
+		{320,30,10000,10000,false},
 	};
 }
 
 namespace sys{
 	//square_t framesize={0,0,420,480};
-	square_t framesize={0,0,1280,720};
+	square_t framesize={0,0,1024,768};
 }
 
 const int ENM_MAX_LINE=10;
 const int ENM_MAX_TIME=10*60*60*5;
-CommonEnemy ET1[ENM_MAX_LINE][ENM_MAX_TIME]; //敵さん！
+CommonEnemyTypeA ETA[ENM_MAX_LINE][ENM_MAX_TIME]; //敵さん！
 
-CommonEnemy ET2[ENM_MAX_LINE][ENM_MAX_TIME]; //敵さん（B）！
+//CommonEnemyTypeA ET2[ENM_MAX_LINE][ENM_MAX_TIME]; //敵さん（B）！
 int TimeLine[ENM_MAX_LINE][ENM_MAX_TIME]={0}; //時間-位置を表す、敵を出さない場合は0
 
 
@@ -70,16 +76,6 @@ TimeControl TC_Main;
 
 //メインループ---------------------------------
 int main(){
-	//TimeLine[0][1]=1;
-	//TimeLine[1][2]=1;
-	//TimeLine[2][3]=1;
-	//TimeLine[3][4]=1;
-	//TimeLine[4][5]=1;
-	//TimeLine[5][6]=1;
-	//TimeLine[6][7]=1;
-	//TimeLine[7][8]=1;
-	//TimeLine[8][9]=1;
-	//TimeLine[9][10]=1;
 	TC_Main.Start();
 	TC_Main.Add();
 
@@ -89,12 +85,24 @@ int main(){
 
 	if(!FpsStabilizer_Main.skipedCheck()){
 
-		//DrawGraph(0,0,graph::back[0],true); //背景
 	}
 	//ノベルモードに入るかどうか
 	if(talkphase==true){
 		ShowNobel();
 		talkphase=false;
+	}
+
+	{
+		static bool isLocked;
+		if(key[KEY_INPUT_SPACE]){
+			if(!isLocked){
+ 				jiki.SpeOutput+=1;
+				jiki.SpeOutput%=2;
+			}
+			isLocked=true;
+		} else {
+			isLocked=false;
+		}
 	}
 
 	if(key[KEY_INPUT_S]) jiki.SpeOutput=1;
@@ -121,9 +129,19 @@ int main(){
 	}
 	TBulletMove();
 
-	//残りライフチェック
-	if(jiki.life.now <=0) return 1;
-	if(boss[0].life.now<=0) return 2;
+	//ゲーム終了
+	if(jiki.life.now <=0) {
+		Result=0;
+		return 1;
+	}
+	if(boss[0].life.now<=0){
+		ClearTime=TC_Main.LocalSecond/10;
+		return 2;
+	}
+	if(TC_Main.LocalSecond>1200){
+		Result=1;
+		return 1;
+	}
 	float damage=TekiDamage();
 	boss[0].damage=(bool)damage;
 	boss[0].life.now-=damage;
@@ -140,8 +158,8 @@ int main(){
 		//ポーズ開始処理
 		static bool past_push=true;
 		if(key[KEY_INPUT_ESCAPE]==1 && past_push==false){
-			GetDrawScreenGraph(0,0,640,480,ScreenShot,false);
-			if(PauseGame()==-1) return -1;
+			/*GetDrawScreenGraph(0,0,640,480,ScreenShot,false);
+			if(PauseGame()==-1) return -1;*/
 		}
 		if(CheckHitKeyAll()==0) past_push=false; else past_push=true;
 	//}
@@ -189,8 +207,8 @@ void Draw(){
 	}
 
 	//自機体力
-	DrawBox(jiki.x-40,jiki.y+55,jiki.x+40,jiki.y+60,GetColor(255,255,255),false);
-	DrawBox(jiki.x-40,jiki.y+55,jiki.x-40+80*(float)jiki.life.now/(float)jiki.life.max,jiki.y+60,GetColor(255,255,255),true);
+	/*DrawBox(jiki.x-40,jiki.y+55,jiki.x+40,jiki.y+60,GetColor(255,255,255),false);
+	DrawBox(jiki.x-40,jiki.y+55,jiki.x-40+80*(float)jiki.life.now/(float)jiki.life.max,jiki.y+60,GetColor(255,255,255),true);*/
 
 	if(jiki.damage==true) DrawBox(jiki.x-10,jiki.y-10,jiki.x+10,jiki.y+10,Cred,true);
 	if(jiki.ahantei==true){
@@ -198,7 +216,7 @@ void Draw(){
 	}
 
 	//武器切り替え
-	DrawFormatString(jiki.x-40,jiki.y+40,Cwhite,"WEAP:%d",jiki.weap);
+	//DrawFormatString(jiki.x-40,jiki.y+40,Cwhite,"WEAP:%d",jiki.weap);
 	
 	static bool past_pushed=1;
 	if(key[KEY_INPUT_X]==1){
@@ -262,26 +280,30 @@ void Draw(){
 	//	}
 	//}
 
+	//弾描画
 	for(int i=0;i<200;i++){
 		if(tb[i].avail==true){
-			DrawCircle(tb[i].x,tb[i].y,3,Cgreen,true);
+			DrawGraph(tb[i].x-6,tb[i].y-6,graph::enm_bullet1,true);
+			//DrawCircle(tb[i].x,tb[i].y,3,Cgreen,true);
 		}
 	}
 
 	for(int weap=0; weap<=9; weap++){
 		for(int i=0;i<200;i++){
 			if(my_bullet[weap][i].avail==true){
-				//DrawBox(my_bullet[weap][i].x-3,my_bullet[weap][i].y-3,my_bullet[weap][i].x+3,my_bullet[weap][i].y+3,GetColor(255,255,255),true);
 				if(weap==0) DrawGraph(my_bullet[weap][i].x-8,my_bullet[weap][i].y-8,graph::bullet[0],true);
 				if(2<=weap && weap<=4) DrawGraph(my_bullet[weap][i].x-4,my_bullet[weap][i].y-4,graph::bullet[1],true);
 			}
 		}
 	}
+	if(isLaserActive){
+		DrawLine(jiki.x,jiki.y,jiki.x,0,Cgreen,true);
+	}
 	//WEAP_C
-	for(int i=0;i<MAX_BULLET_NUM;i++){
+	/*for(int i=0;i<MAX_BULLET_NUM;i++){
 		if(jikiTrackingBullet[i].avail==false)continue;
 		DrawGraph(jikiTrackingBullet[i].x-8,jikiTrackingBullet[i].y-8,graph::bullet[2],true);
-	}
+	}*/
 	//GUI
 	DrawGraph(0,0,graph::ui_main,true); //メイン
 	DrawGraph(0,0,graph::ui_hidariue,true); //左上
@@ -294,14 +316,20 @@ void Draw(){
 		if(25<=i && i<50) DrawGraph(0,0,graph::ui_spj_convert[2],true);
 		if(50<=i && i<75) DrawGraph(0,0,graph::ui_spj_convert[1],true);
 		if(75<=i && i<100) DrawGraph(0,0,graph::ui_spj_convert[0],true);
-		if(SpjControl_Main.isConverting) DrawCircleGauge(262,667,(100-(float)(frame-SpjControl_Main.StartFrame)/300*100),graph::ui_spj_time);
+		if(SpjControl_Main.isConverting) DrawCircleGauge(262,667,(float)(frame-SpjControl_Main.StartFrame)/100*100,graph::ui_spj_time);
 	}
 
 	DrawCircleGauge(896,614,(float)jiki.life.now/jiki.life.max*100,graph::ui_weap_meter); //体力メーター
 	DrawGraph(0,0,graph::ui_spe_out[jiki.SpeOutput],true); //spe出力先
 	DrawGraph(0,0,graph::ui_spe[jiki.SpeAmount],true); //spe残り
-	DrawCircleGauge(910,620,SpjControl_Main.SLD,graph::ui_spe_meter); //SPEメーター、38%で最大 25%で最小
-	
+	switch(chara::jiki.SpeOutput){
+	case 0:
+		DrawCircleGauge(910,620,SpjControl_Main.ATK,graph::ui_spe_meter);
+		break;
+	case 1:
+		DrawCircleGauge(910,620,SpjControl_Main.SLD,graph::ui_spe_meter); //SPEメーター、38%で最大 25%で最小
+		break;
+	}
 	{
 		static bool isLocked;
 		if(!SpjControl_Main.isSPEReady){
@@ -322,11 +350,9 @@ void Draw(){
 		}
 
 	}
-	DrawFormatString(framesize.left+5,10,Cwhite,"SPJ: %d",jiki.SpjAmount);
-	DrawFormatString(framesize.left+5,30,Cwhite,"SPE: %d",jiki.SpeAmount);
-	DrawFormatString(framesize.left+5,50,Cwhite,"OUT: %d",jiki.SpeOutput);
-	DrawFormatString(framesize.left+5,70,Cwhite,"TIME: %d",TC_Main.LocalSecond);
-	DrawBox(0,0,640*boss[0].life.now/boss[0].life.max,10,Cred,true);
+	DrawFormatString(framesize.left+17,37,Cwhite,"地球滅亡まで: %d秒",120-(int)TC_Main.LocalSecond/10);
+
+	DrawBox(0,0,1024*boss[0].life.now/boss[0].life.max,5,Cred,true);
 	
 }
 
@@ -371,6 +397,8 @@ void Move(){
 
 void TBulletMove(){
 	//敵弾発射
+
+	//ボス
 	switch(stage){
 	case 1:
 		TekiBullet_1();
@@ -390,6 +418,7 @@ void JBulletMove(){
 	//弾召喚
 	switch (jiki.weap){
 	case WEAP_A:
+		isLaserActive=false;
 		if(key[KEY_INPUT_Z]==1 && frame%4==1){
 			if(bullet_num[MD_WEAP_A]>=199) bullet_num[MD_WEAP_A]=0;
 			bullet_num[MD_WEAP_A]++;
@@ -401,6 +430,7 @@ void JBulletMove(){
 		}
 		break;
 	case WEAP_B:
+		isLaserActive=false;
 		if(key[KEY_INPUT_Z]==1 && frame%2==1){
 			if(bullet_num[MD_WEAP_B_WAY1]>=199) bullet_num[MD_WEAP_B_WAY1]=0;
 			bullet_num[MD_WEAP_B_WAY1]++;
@@ -428,15 +458,23 @@ void JBulletMove(){
 		}
 		break;
 	case WEAP_C:
-		if(key[KEY_INPUT_Z]==1 && frame%16==1){
-			bullet_num[MD_WEAP_C]++;
-			bullet_num[MD_WEAP_C]&=MAX_BULLET_NUM-1;
-			if(jikiTrackingBullet[bullet_num[MD_WEAP_C]].avail)break;
-			jikiTrackingBullet[bullet_num[MD_WEAP_C]].avail=true;
-			jikiTrackingBullet[bullet_num[MD_WEAP_C]].x=jiki.x;
-			jikiTrackingBullet[bullet_num[MD_WEAP_C]].y=jiki.y;
-			jikiTrackingBullet[bullet_num[MD_WEAP_C]].angle=-PI/2;
+		
+		if(key[KEY_INPUT_Z]==1){
+			isLaserActive=true;
+		} else {
+			isLaserActive=false;
 		}
+
+		//ホーミング
+		//if(key[KEY_INPUT_Z]==1 && frame%16==1){
+		//	bullet_num[MD_WEAP_C]++;
+		//	bullet_num[MD_WEAP_C]&=MAX_BULLET_NUM-1;
+		//	if(jikiTrackingBullet[bullet_num[MD_WEAP_C]].avail)break;
+		//	jikiTrackingBullet[bullet_num[MD_WEAP_C]].avail=true;
+		//	jikiTrackingBullet[bullet_num[MD_WEAP_C]].x=jiki.x;
+		//	jikiTrackingBullet[bullet_num[MD_WEAP_C]].y=jiki.y;
+		//	jikiTrackingBullet[bullet_num[MD_WEAP_C]].angle=-PI/2;
+		//}
 		break;
 	default:
 		break;
@@ -478,9 +516,17 @@ void JBulletMove(){
 		}
 	}
 	//WEAP_C
-	for(int i=0;i<MAX_BULLET_NUM;i++){
-		jikiTrackingBullet[i].JikiMove();
+	for(int i=0; i<200; i++){
+		if(my_bullet[MD_WEAP_C][i].avail==true) my_bullet[MD_WEAP_C][i].y-=15;
+		if(my_bullet[MD_WEAP_C][i].x > framesize.right+6 || my_bullet[MD_WEAP_C][i].x < framesize.left-6 || my_bullet[MD_WEAP_C][i].y < framesize.top-6 || my_bullet[MD_WEAP_C][i].y > framesize.bottom+6){
+			my_bullet[MD_WEAP_C][i].avail=false;
+		}
 	}
+
+	//ホーミング
+	//for(int i=0;i<MAX_BULLET_NUM;i++){
+	//	jikiTrackingBullet[i].JikiMove();
+	//}
 
 }
 
@@ -519,6 +565,8 @@ void var_init(){
 	jiki.life.now=jiki.life.max;
 	shield.life.now=shield.life.max;
 	jiki.SpjAmount=6;
+	jiki.SpeAmount=0;
+	jiki.SpeOutput=0;
 	boss[0].life.now=boss[0].life.max;
 
 	for(int i=0;i<MAX_BULLET_NUM;i++){
@@ -535,6 +583,10 @@ void var_init(){
 		for(int i=0;i<MAX_BULLET_NUM;i++){
 			my_bullet[weap][i].avail=false;
 		}
+	}
+
+	for(int n=0; n<198; n+=2){
+		ETA[buf[n]][buf[n+1]].isDead=true;
 	}
 }
 
@@ -610,22 +662,21 @@ void TrackingBullet::TekiMove(){
 
 float PlayerDamageValue(int weap){
 	const int SPE_MULTI=3;
-	if(jiki.SpeOutput==1) return JikiBulletDamageList[weap]*SPE_MULTI; else return JikiBulletDamageList[weap];
+	if(SpjControl_Main.isATKReady) return JikiBulletDamageList[weap]*SPE_MULTI; else return JikiBulletDamageList[weap];
 }
 
-int EnemyRingBuf[200];
 void DropEnemy(){
 	static int Counter;
 	for(int n=0; n<ENM_MAX_LINE; n++){
 		
 		switch(TimeLine[n][TC_Main.LocalSecond]){
 		case 1:
-			if(ET1[n][TC_Main.LocalSecond].isDead){
-				ET1[n][TC_Main.LocalSecond].x=1024*n/(ENM_MAX_LINE-1);
-				ET1[n][TC_Main.LocalSecond].y=-250;
-				ET1[n][TC_Main.LocalSecond].isDead=false;
-				EnemyRingBuf[Counter%200]=n;
-				EnemyRingBuf[Counter%200+1]=TC_Main.LocalSecond;
+			if(ETA[n][TC_Main.LocalSecond].isDead){
+				ETA[n][TC_Main.LocalSecond].x=1024*n/(ENM_MAX_LINE-1);
+				ETA[n][TC_Main.LocalSecond].y=-250;
+				ETA[n][TC_Main.LocalSecond].isDead=false;
+				buf[Counter%200]=n;
+				buf[Counter%200+1]=TC_Main.LocalSecond;
 				Counter+=2;
 			}
 			break;
@@ -641,8 +692,8 @@ void MoveEnemy(){
 		for(int j=0; j<ENM_MAX_TIME; j++){
 			switch(TimeLine[i][j]){
 			case 1:
-				if(!ET1[i][j].isDead){
-					ET1[i][j].Move();
+				if(!ETA[i][j].isDead){
+					ETA[i][j].Move();
 				}
 
 			}
@@ -654,18 +705,53 @@ void MoveEnemy(){
 void HitEnemy(){
 	for(int n=0; n<=198; n+=2){
 		for(int k=0; k<MAX_BULLET_NUM; k++){
-			if(ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].isDead==false){
-				if(my_bullet[MD_WEAP_A][k].avail==true && ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].x-40<my_bullet[MD_WEAP_A][k].x && my_bullet[MD_WEAP_A][k].x<ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].x+40 && ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].y-50<my_bullet[MD_WEAP_A][k].y && my_bullet[MD_WEAP_A][k].y<ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].y+50){
-					ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].x+=2500;
+			if(ETA[buf[n]][buf[n+1]].isDead==false){
+
+				if(my_bullet[MD_WEAP_A][k].avail==true && ETA[buf[n]][buf[n+1]].x-40<my_bullet[MD_WEAP_A][k].x && my_bullet[MD_WEAP_A][k].x<ETA[buf[n]][buf[n+1]].x+40 && ETA[buf[n]][buf[n+1]].y-50<my_bullet[MD_WEAP_A][k].y && my_bullet[MD_WEAP_A][k].y<ETA[buf[n]][buf[n+1]].y+50){
+					my_bullet[MD_WEAP_A][k].avail=false;
+					ETA[buf[n]][buf[n+1]].Life-=PlayerDamageValue(MD_WEAP_A);
+					ETA[buf[n]][buf[n+1]].isDamaged=true;
+					if(ETA[buf[n]][buf[n+1]].Life<=0){
+						ETA[buf[n]][buf[n+1]].isDead=true;
+						if(GetRand(5)==1 && chara::jiki.SpjAmount<=6) chara::jiki.SpjAmount++;
+					}
+				}
+				for(int weap=2; weap<=4; weap++){
+					if(my_bullet[weap][k].avail==true && ETA[buf[n]][buf[n+1]].x-40<my_bullet[weap][k].x && my_bullet[weap][k].x<ETA[buf[n]][buf[n+1]].x+40 && ETA[buf[n]][buf[n+1]].y-50<my_bullet[weap][k].y && my_bullet[weap][k].y<ETA[buf[n]][buf[n+1]].y+50){
+						my_bullet[weap][k].avail=false;
+						ETA[buf[n]][buf[n+1]].Life-=PlayerDamageValue(weap);
+						ETA[buf[n]][buf[n+1]].isDamaged=true;
+						if(ETA[buf[n]][buf[n+1]].Life<=0){
+							ETA[buf[n]][buf[n+1]].isDead=true;
+							if(GetRand(5)==1 && chara::jiki.SpjAmount<=6) chara::jiki.SpjAmount++;
+						}
+					}
+				}
+
+				if(isLaserActive && ETA[buf[n]][buf[n+1]].x-40 < jiki.x && jiki.x < ETA[buf[n]][buf[n+1]].x+40){
+					ETA[buf[n]][buf[n+1]].Life-=PlayerDamageValue(MD_WEAP_C);
+					ETA[buf[n]][buf[n+1]].isDamaged=true;
+					if(ETA[buf[n]][buf[n+1]].Life<=0){
+						ETA[buf[n]][buf[n+1]].isDead=true;
+						if(GetRand(5)==1 && chara::jiki.SpjAmount<=6) chara::jiki.SpjAmount++;
+					}
 				}
 			}
 		}
 	}
+
 }
 
 void DrawEnemy(){
 	for(int n=0; n<=198; n+=2){
-		ET1[EnemyRingBuf[n%200]][EnemyRingBuf[n%200+1]].Draw();
+		if(!ETA[buf[n]][buf[n+1]].isDead){
+			if(ETA[buf[n]][buf[n+1]].isDamaged){
+				DrawGraph(ETA[buf[n]][buf[n+1]].x-71,ETA[buf[n]][buf[n+1]].y-50,graph::en_c_d[1],true);
+				ETA[buf[n]][buf[n+1]].isDamaged=false;
+			} else {
+				DrawGraph(ETA[buf[n]][buf[n+1]].x-71,ETA[buf[n]][buf[n+1]].y-50,graph::en_c[1],true);
+			}
+		}
 	}
 }
 

@@ -10,7 +10,7 @@ common.h
 
 const unsigned int JIKI_BULLET_KIND=10;
 const unsigned int MAX_BULLET_NUM=256;
-extern int JikiBulletDamageList[JIKI_BULLET_KIND];
+extern float JikiBulletDamageList[JIKI_BULLET_KIND];
 #define PI 3.141592
 #define MD_WEAP_A 0
 #define MD_WEAP_B 1

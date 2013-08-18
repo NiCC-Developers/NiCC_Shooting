@@ -7,6 +7,7 @@ extern int Cred, Cblack, Cblue, Cgreen, Cwhite;
 extern int Fsmall,Fnorm;
 extern int stage;
 extern int ScreenShot;
+extern int HighScore;
 
 //デバッグ用
 void debugtimer(char* before);

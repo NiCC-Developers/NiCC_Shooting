@@ -19,6 +19,7 @@ int stage=1; //現在のステージ番号
 unsigned int StartTime; 
 int ScreenShot; //スクショ保存用ハンドル
 Save_t ConfigData={100, 100, false}; //コンフィグデータ初期値
+int HighScore=120;
 FpsStabilizer FpsStabilizer_Main;
 
 //-------------------関数プロトタイプ宣言 -------------------
@@ -32,10 +33,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 
 	//-------------------初期化ここから-------------------
 	LoadConfigData();//設定の読み込み
+	LoadSaveData();
 	LoadMapData();
 	if(ConfigData.isFullscreen == true) ChangeWindowMode(false); else ChangeWindowMode(true);
 	srand((unsigned)time(NULL)); //乱数のシード値をランダムに指定
 	SetGraphMode(1024,768,32);
+	SetMainWindowText("Fail Over Ver1.0.0") ;
 	//------------------- これより下はDxLib初期化済み -------------------
 	if(DxLib_Init()==-1) return -1;
 	SetDrawScreen(DX_SCREEN_BACK); //裏描画設定
@@ -45,7 +48,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine
 	SetFont(); //カスタムフォントデータを作成
 	LoadGraphics(); //画像の読み込み
 	//-------------------初期化終了-------------------
-
+	PlaySoundMem(music::ms_op,DX_PLAYTYPE_LOOP);
+	ChangeVolumeSoundMem(255*ConfigData.bgmvol/100,music::ms_op);
 #define MD_STARTMENU_BEGIN 0
 #define MD_STARTMENU_END 1
 #define MD_STARTMENU_CONFIG 2
@@ -58,7 +62,7 @@ title:
 		break;
 	case 0:
 		break; //開始
-	case 1:
+	case 3:
 		//ポップアップウィンドウを表現するためにスクショを取得
 		GetDrawScreenGraph(0,0,640,480,ScreenShot);
 		switch(ConfigScreen()){
@@ -69,7 +73,7 @@ title:
 			break;
 		}
 		break;
-	case 2:
+	case 1:
 		goto end; //終了
 		break;
 	default:
@@ -82,7 +86,9 @@ title:
 
 	//メインループ
 start:
-	PlayMusic("res\\bgm\\battle.wav",DX_PLAYTYPE_LOOP);
+	DeleteSoundMem(music::ms_op);
+	PlaySoundMem(music::ms_battle,DX_PLAYTYPE_LOOP);
+	ChangeVolumeSoundMem(255*ConfigData.bgmvol/100,music::ms_battle);
 	while(1){
 		//FpsStabilizer_Main.Init();
 		cpu_fps=GetFPS_CPU();
@@ -100,24 +106,69 @@ start:
 		case -1:
 			goto end;
 		case 1:
-			DrawGraph(300,10,graph::chara[2],true);
-			DrawFormatString(320,200,GetColor(255,255,255),"死んだ");
+			DeleteSoundMem(music::ms_battle);
+			ChangeVolumeSoundMem(255*ConfigData.bgmvol/100,music::ms_gameover);
+			PlaySoundMem(music::ms_gameover,DX_PLAYTYPE_NORMAL);
+			PlaySoundMem(music::ms_result,DX_PLAYTYPE_LOOP);
+			ChangeVolumeSoundMem(255*ConfigData.bgmvol/100,music::ms_result);
+			DrawGraph(0,0,graph::bg_gameover,true);
+			SetFontSize(32);
+			switch(Result){
+			case 0:
+				DrawFormatString(350,300,Cwhite,"機体が破壊されてしまった");
+				break;
+			case 1:
+				DrawFormatString(330,300,Cwhite,"起爆装置が作動してしまった");
+			}
+
+			DrawFormatString(400,450,Cwhite,"～今日の運勢～");
+			switch(GetRand(5)){
+			case 0:
+				DrawFormatString(300,500,Cwhite,"棚からぼたもちが出るでしょう");
+				break;
+			case 1:
+				DrawFormatString(300,500,Cwhite,"二階から目薬をさせるでしょう");
+				break;
+			case 2:
+				DrawFormatString(300,500,Cwhite,"パソコンがフリーズするでしょう");
+				break;
+			case 3:
+				DrawFormatString(300,500,Cwhite,"締め切りに追われるでしょう");
+				break;
+			case 4:
+				DrawFormatString(300,500,Cwhite,"小指を角にぶつけるでしょう");
+				break;
+			case 5:
+				DrawFormatString(300,500,Cwhite,"USBメモリをLANポートに差すでしょう");
+				break;
+			}
+			
 			ScreenFlip();
-			WaitKey();
-			var_init();
-			goto start;
+			while(ProcessMessage()==0){}
 			break;
 		case 2:
-			DrawGraph(300,10,graph::chara[1],true);
-			DrawFormatString(320,220,GetColor(255,255,255),"すごい");
+			DeleteSoundMem(music::ms_battle);
+			ChangeVolumeSoundMem(255*ConfigData.bgmvol/100,music::ms_gameover);
+			PlaySoundMem(music::ms_gameover,DX_PLAYTYPE_NORMAL);
+			ChangeVolumeSoundMem(255*ConfigData.bgmvol/100,music::ms_result);
+			PlaySoundMem(music::ms_result,DX_PLAYTYPE_LOOP);
+			DrawGraph(0,0,graph::bg_clear,true);
+			SetFontSize(32);
+			DrawFormatString(300,300,Cwhite,"地球は助かりました。やったね！");
+			SetFontSize(20);
+			DrawFormatString(400,450,Cwhite,"最速クリア時間：%d秒",HighScore);
+			DrawFormatString(400,500,Cwhite,"あなたのクリア時間：%d秒",ClearTime);
+			if(ClearTime<HighScore){
+				HighScore=ClearTime;
+				SaveSaveData();
+				DrawFormatString(400,550,Cred,"記録更新！！");
+			}
 			ScreenFlip();
-			WaitKey();
-			var_init();
-			goto start;
+			while(ProcessMessage()==0){}
 			break;
 		}
 		if(!FpsStabilizer_Main.skipedCheck()){
-			DrawFormatString(0,450,GetColor(255,255,255),"%.1f FPS(CPU:%.1f)",fps,cpu_fps);
+			DrawFormatString(850,745,GetColor(255,255,255),"%.1f FPS(CPU:%.1f)",fps,cpu_fps);
 			ScreenFlip();
 		}
 	}
